@@ -3,7 +3,6 @@ package view.viewNhanSu;
 import domain.ChucVu;
 import java.awt.*;
 import java.awt.event.ActionListener;
-import java.util.List;
 import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.table.DefaultTableCellRenderer;
