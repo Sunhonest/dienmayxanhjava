@@ -1,5 +1,6 @@
 package view;
 
+import domain.QLBH.QLDH;
 import domain.TaiKhoan;
 import java.awt.*;
 import java.awt.event.*;
@@ -9,6 +10,7 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
 // Import View
+import view.viewQLBH.QuanLyDonHang;
 import view.viewNhanSu.QuanLyChucVu;
 import view.viewNhanSu.QuanLyTaiKhoan;
 import view.viewNhanSu.QuanLyNhanVien;
@@ -18,6 +20,7 @@ import view.viewBaoHanh.QuanLyBaoHanh;//import viewBaoHanh
 import view.viewBaoHanh.TraCuuBaoHanh; //import viewTraCuuBaoHanh
 import view.viewBaoHanh.TraMay;//import viewTraMay
 // Import Controller
+import controller.QLBH.QLDHController;
 import controller.NhanSu.NhanVienController;
 import controller.NhanSu.TaiKhoanController;
 import controller.NhanSu.ChucVuController;
@@ -109,7 +112,7 @@ public class MainForm extends JFrame {
         
         addMenuItem("Bán hàng (POS)", 
                 "https://img.icons8.com/fluency/48/pos-terminal.png", 
-                new String[]{"Lập hóa đơn", "Khách hàng thân thiết", "Lịch sử giao dịch"});
+                new String[]{"Quản lý đơn hàng", "Quản lý khuyến mại", "Quản lý hóa đơn","Thống kê"});
         
         addMenuItem("Dịch vụ bảo hành", 
                 "https://img.icons8.com/fluency/48/maintenance.png",
@@ -144,6 +147,15 @@ public class MainForm extends JFrame {
         QuanLyChucVu viewCV = new QuanLyChucVu(); 
         new ChucVuController(viewCV);             
         pnlCards.add(viewCV, "Quản lý chức vụ");
+        
+        
+        // ===== QUẢN LÝ ĐƠN HÀNG =====
+        QuanLyDonHang viewDonHang = new QuanLyDonHang();
+        new QLDHController(viewDonHang);  
+        pnlCards.add(viewDonHang, "Quản lý đơn hàng");
+
+
+        
 
         // ... (Code các phần khác giữ nguyên)
 
