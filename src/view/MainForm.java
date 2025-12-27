@@ -14,6 +14,9 @@ import view.viewNhanSu.QuanLyTaiKhoan;
 import view.viewNhanSu.QuanLyNhanVien;
 import view.DangNhapFrame; // Để mở lại khi đăng xuất
 
+import view.viewBaoHanh.QuanLyBaoHanh;//import viewBaoHanh
+import view.viewBaoHanh.TraCuuBaoHanh; //import viewTraCuuBaoHanh
+import view.viewBaoHanh.TraMay;//import viewTraMay
 // Import Controller
 import controller.NhanSu.NhanVienController;
 import controller.NhanSu.TaiKhoanController;
@@ -115,7 +118,7 @@ public class MainForm extends JFrame {
         addMenuItem("Khuyến mãi & Thống kê", 
                 "https://img.icons8.com/fluency/48/analytics.png", 
                 new String[]{"Doanh thu ngày", "Doanh thu tháng", "Lợi nhuận"});
-
+        
         // Đẩy nút Đăng xuất xuống đáy
         pnlMenu.add(Box.createVerticalGlue());
         // ==> NÚT ĐĂNG XUẤT <==
@@ -142,8 +145,35 @@ public class MainForm extends JFrame {
         new ChucVuController(viewCV);             
         pnlCards.add(viewCV, "Quản lý chức vụ");
 
+        // ... (Code các phần khác giữ nguyên)
+
+        // 1. Màn hình Tiếp nhận
+        QuanLyBaoHanh viewTiepNhan = new QuanLyBaoHanh();
+        // new BaoHanhController(viewTiepNhan); // Tạm thời comment lại nếu chưa code xong Controller
+        pnlCards.add(viewTiepNhan, "Tiếp nhận bảo hành");
+
+        // --- SỬA ĐOẠN NÀY ĐỂ HIỆN GIAO DIỆN TRA CỨU ---
+        
+        // Bước 1: Khởi tạo giao diện (View)
+        TraCuuBaoHanh viewTraCuu = new TraCuuBaoHanh(); 
+        
+        // Bước 2: Controller (VÌ BẠN CHƯA VIẾT NÊN ĐỪNG GỌI NÓ, HOẶC COMMENT LẠI)
+        // new TraCuuController(viewTraCuu); <== Comment dòng này lại để không bị báo lỗi đỏ
+        
+        // Bước 3: THÊM VÀO CARD LAYOUT (QUAN TRỌNG NHẤT)
+        // Cái tên "Tra cứu" trong ngoặc kép PHẢI GIỐNG Y HỆT tên trong menu addMenuItem ở trên
+        pnlCards.add(viewTraCuu, "Tra cứu"); 
+
+        // ----------------------------------------------
+
+        // 3. Màn hình Trả máy
+        TraMay viewTraMay = new TraMay();
+        // new TraMayController(viewTraMay); // Comment lại nếu chưa có
+        pnlCards.add(viewTraMay, "Trả máy");
+
+        // ...
         add(new JScrollPane(pnlMenu), BorderLayout.WEST);
-        add(pnlCards, BorderLayout.CENTER);
+        add(pnlCards, BorderLayout.CENTER);     
     }
     // HÀM HIỂN THỊ THÔNG TIN USER (NEW)
     private void addUserInfo() {
