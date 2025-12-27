@@ -179,14 +179,7 @@ public class TraMay extends JPanel {
     public String getMaPhieuInput() { return txtMaPhieu.getText().trim(); }
     public void setThongTinHienThi(String text) { txtThongTinPhieu.setText(text); }
     
-    // Đã xóa hàm setStatusHeader vì không còn nhãn trạng thái
-    // Nếu Controller của bạn vẫn gọi hàm này, bạn có thể uncomment dòng dưới để tránh lỗi code:
-    /*
-    public void setStatusHeader(String text, boolean isSuccess) {
-        // Không làm gì hoặc hiện thông báo nhỏ
-    }
-    */
-
+   
     public void setEnableButtonTra(boolean enable) { 
         btnXacNhanTra.setEnabled(enable); 
         btnXacNhanTra.setBackground(enable ? COLOR_PRIMARY : COLOR_DISABLED);
