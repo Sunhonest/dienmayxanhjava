@@ -1,5 +1,6 @@
 package view;
 
+import controller.Kho.SanPhamController;
 import domain.QLBH.QLDH;
 import domain.TaiKhoan;
 import java.awt.*;
@@ -8,14 +9,19 @@ import java.net.URL;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+
+// Import View
 import view.viewQLBH.QuanLyDonHang;
 import view.viewNhanSu.QuanLyChucVu;
 import view.viewNhanSu.QuanLyTaiKhoan;
 import view.viewNhanSu.QuanLyNhanVien;
-import view.DangNhapFrame;
+import view.DangNhapFrame; // Để mở lại khi đăng xuất
 
-import view.viewBaoHanh.QuanLyBaoHanh;
-import view.viewBaoHanh.TraCuuBaoHanh; 
+import view.viewKho.QuanLyNhapKho;
+import controller.Kho.NhapKhoController;
+
+import view.viewBaoHanh.QuanLyBaoHanh;//import viewBaoHanh
+import view.viewBaoHanh.TraCuuBaoHanh; //import viewTraCuuBaoHanh
 import view.viewBaoHanh.TraMay;//import viewTraMay
 // Import Controller
 import controller.QLBH.QLDHController;
@@ -23,6 +29,7 @@ import controller.NhanSu.NhanVienController;
 import controller.NhanSu.TaiKhoanController;
 import controller.NhanSu.ChucVuController;
 import controller.NhanSu.DangNhapController; // QUAN TRỌNG: Để gắn não cho form đăng nhập
+import view.viewKho.QuanLySanPham;
 
 public class MainForm extends JFrame {
 
@@ -61,7 +68,7 @@ public class MainForm extends JFrame {
         String tenUser = (taiKhoanHienTai != null) ? taiKhoanHienTai.getTenDangNhap() : "Ẩn danh";
         setTitle("Hệ thống Quản lý Điện máy Xanh - Xin chào: " + tenUser);
         
-        setSize(1200, 700);
+        setSize(1300, 700);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
@@ -146,6 +153,14 @@ public class MainForm extends JFrame {
         new ChucVuController(viewCV);             
         pnlCards.add(viewCV, "Quản lý chức vụ");
         
+        QuanLySanPham viewSP = new QuanLySanPham();
+        new SanPhamController(viewSP); // Gắn não cho view
+        pnlCards.add(viewSP, "Danh sách sản phẩm");
+        
+       // Tìm đoạn khởi tạo NhapKhoController và sửa thành:
+       QuanLyNhapKho viewNhap = new QuanLyNhapKho();
+       new NhapKhoController(viewNhap, this.taiKhoanHienTai); // Truyền tài khoản vào
+       pnlCards.add(viewNhap,"Nhập kho");
         
         // ===== QUẢN LÝ ĐƠN HÀNG =====
         QuanLyDonHang viewDonHang = new QuanLyDonHang();
