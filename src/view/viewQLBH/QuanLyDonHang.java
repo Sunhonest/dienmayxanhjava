@@ -34,6 +34,7 @@ import javax.swing.SpinnerDateModel;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
 
 /**
  *
@@ -77,23 +78,44 @@ public class QuanLyDonHang extends JPanel{
         JPanel panel = new JPanel(new BorderLayout(8, 8));
 
         model = new DefaultTableModel(
-                new Object[]{"MaKH", "MaDonHang", "NgayTao", "TongTien", "TienGiam", "VoucherID", "TrangThai", "MaNV"}, 0
+                new Object[]{"Mã khách hàng", "Mã đơn hàng", "Ngày tạo", "Tổng tiền", "Tiền giảm", "Voucher ID", "Trạng thái", "Mã nhân viên"}, 0
         ) {
             @Override public boolean isCellEditable(int row, int col) { return false; }
         };
 
         tblDonHang = new JTable(model);
+
+        // ===== STYLE TABLE =====
         tblDonHang.setRowHeight(28);
         tblDonHang.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        tblDonHang.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 13));
-        tblDonHang.getTableHeader().setBackground(new Color(33, 150, 243)); // #2196F3
-//        tblDonHang.getTableHeader().setForeground(Color.WHITE);
-        tblDonHang.getTableHeader().setOpaque(true);
+        tblDonHang.setSelectionBackground(new Color(187, 222, 251));
+        tblDonHang.setSelectionForeground(Color.BLACK);
 
+        // ===== STYLE HEADER (GIỐNG QL NHÂN SỰ) =====
+        JTableHeader header = tblDonHang.getTableHeader();
+        header.setBackground(new Color(33, 150, 243));
+        header.setForeground(Color.WHITE);
+        header.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        header.setPreferredSize(new Dimension(header.getWidth(), 35));
+        header.setOpaque(false);
+        header.setDefaultRenderer(new javax.swing.table.DefaultTableCellRenderer() {
+            @Override
+            public java.awt.Component getTableCellRendererComponent(JTable table, Object value,
+                    boolean isSelected, boolean hasFocus, int row, int column) {
+                JLabel label = new JLabel(value.toString());
+                label.setBackground(new Color(33, 150, 243));
+                label.setForeground(Color.WHITE);
+                label.setFont(new Font("Segoe UI", Font.BOLD, 14));
+                label.setHorizontalAlignment(SwingConstants.CENTER);
+                label.setOpaque(true);
+                label.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, Color.WHITE));
+                return label;
+            }
+        });
 
         panel.add(new JScrollPane(tblDonHang), BorderLayout.CENTER);
         return panel;
-    }
+        }
 
     private JPanel createDetailPanel() {
         JPanel wrap = new JPanel(new BorderLayout());
@@ -144,20 +166,35 @@ public class QuanLyDonHang extends JPanel{
 
         JPanel btnPanel = new JPanel(new GridLayout(2, 2, 10, 10));
         btnPanel.setBorder(new EmptyBorder(10, 14, 14, 14));
-
-        btnThem = new JButton("Thêm");
+        
+         btnThem = new JButton("Thêm");
         btnSua = new JButton("Sửa");
         btnXoa = new JButton("Xóa");
         btnLamMoi = new JButton("Làm mới");
 
         btnThem.setBackground(new Color(76, 175, 80));  
-//        btnThem.setForeground(Color.WHITE);
+        btnThem.setForeground(Color.WHITE);
+        btnThem.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        btnThem.setFocusPainted(false);
+        btnThem.setBorderPainted(false);
 
         btnLamMoi.setBackground(new Color(33, 150, 243)); 
-//        btnLamMoi.setForeground(Color.WHITE);
+        btnLamMoi.setForeground(Color.WHITE);
+        btnLamMoi.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        btnLamMoi.setFocusPainted(false);
+        btnLamMoi.setBorderPainted(false);
 
         btnSua.setBackground(new Color(200, 200, 200));  
+        btnSua.setForeground(Color.BLACK);
+        btnSua.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        btnSua.setFocusPainted(false);
+        btnSua.setBorderPainted(false);
+        
         btnXoa.setBackground(new Color(200, 200, 200));
+        btnXoa.setForeground(Color.BLACK);
+        btnXoa.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        btnXoa.setFocusPainted(false);
+        btnXoa.setBorderPainted(false);
 
         // ActionCommand để Controller switch-case
         btnThem.setActionCommand("Them");
