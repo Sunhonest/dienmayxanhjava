@@ -149,7 +149,7 @@ public class QuanLyDonHang extends JPanel{
         txtTienGiam.setValue(0.00);
 
         cboTrangThai = new JComboBox<>(new String[]{
-                "MOI_TAO", "DA_XAC_NHAN", "DANG_GIAO", "HOAN_TAT", "HUY"
+                "MOI_TAO", "DA_XAC_NHAN", "HUY"
         });
 
         int r = 0;
@@ -244,6 +244,7 @@ public class QuanLyDonHang extends JPanel{
 
         txtMaKH.setText(valueAt(row, 0));
         txtMaDonHang.setText(valueAt(row, 1));
+        txtMaDonHang.setEnabled(false);
 
         // NgayTao đang hiển thị dạng String -> giữ nguyên: set về hiện tại để không crash
         spNgayTao.setValue(new Date());
@@ -261,6 +262,7 @@ public class QuanLyDonHang extends JPanel{
     public void resetForm() {
         txtMaKH.setText("");
         txtMaDonHang.setText("");
+        txtMaDonHang.setEnabled(true);
         spNgayTao.setValue(new Date());
         txtTongTien.setValue(0.00);
         txtTienGiam.setValue(0.00);
@@ -282,6 +284,7 @@ public class QuanLyDonHang extends JPanel{
     QLDH dh = new QLDH();
     dh.setMaKH(txtMaKH.getText().trim());
     dh.setMaDonHang(txtMaDonHang.getText().trim());
+    txtMaDonHang.setEnabled(false);
     dh.setNgayTao((Date) spNgayTao.getValue());
 
     float tong = Float.parseFloat(normalizeMoney(txtTongTien.getText()));

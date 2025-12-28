@@ -8,16 +8,14 @@ import java.net.URL;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-
-// Import View
 import view.viewQLBH.QuanLyDonHang;
 import view.viewNhanSu.QuanLyChucVu;
 import view.viewNhanSu.QuanLyTaiKhoan;
 import view.viewNhanSu.QuanLyNhanVien;
-import view.DangNhapFrame; // Để mở lại khi đăng xuất
+import view.DangNhapFrame;
 
-import view.viewBaoHanh.QuanLyBaoHanh;//import viewBaoHanh
-import view.viewBaoHanh.TraCuuBaoHanh; //import viewTraCuuBaoHanh
+import view.viewBaoHanh.QuanLyBaoHanh;
+import view.viewBaoHanh.TraCuuBaoHanh; 
 import view.viewBaoHanh.TraMay;//import viewTraMay
 // Import Controller
 import controller.QLBH.QLDHController;
