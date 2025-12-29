@@ -15,34 +15,25 @@ import java.util.List;
 
 public class ThongKeDoanhThuPanel extends JPanel {
     
-    // Components
     private JTable tblThongKe;
     private DefaultTableModel model;
     
-    // Date selectors
     private JSpinner spnTuNgay, spnDenNgay;
     private JComboBox<String> cboLoaiThongKe;
     private JSpinner spnNam;
     
-    // Summary labels
     private JLabel lblTongDoanhThu, lblTongGiamGia, lblDoanhThuThucTe, lblSoDonHang;
     
-    // Buttons
-    private JButton btnThongKe, btnXuat, btnLamMoi;
+    private JButton btnThongKe, btnLamMoi;
     
-    // Controller
     private ThongKeController thongKeController;
     
-    // Colors & Fonts - Updated to match voucher management style
     private final Color COLOR_PRIMARY = Color.decode("#2196F3");
     private final Color COLOR_SUCCESS = Color.decode("#4CAF50");
     private final Color COLOR_WARNING = Color.decode("#FF9800");
     private final Color COLOR_INFO = Color.decode("#00BCD4");
-    private final Color COLOR_DANGER = Color.decode("#F44336");
-    private final Color COLOR_PURPLE = Color.decode("#9C27B0");
-    
+
     private final Font FONT_HEADER = new Font("Arial", Font.BOLD, 24);
-    private final Font FONT_FORM_TITLE = new Font("Arial", Font.BOLD, 18);
     private final Font FONT_LABEL = new Font("Arial", Font.BOLD, 14);
     private final Font FONT_INPUT = new Font("Arial", Font.PLAIN, 14);
     private final Font FONT_SUMMARY = new Font("Arial", Font.BOLD, 16);
@@ -58,18 +49,15 @@ public class ThongKeDoanhThuPanel extends JPanel {
         setBackground(Color.WHITE);
         setBorder(new EmptyBorder(20, 20, 20, 20));
         
-        // --- TITLE ---
         JLabel lblTitle = new JLabel("THỐNG KÊ DOANH THU");
         lblTitle.setFont(FONT_HEADER);
         lblTitle.setForeground(COLOR_PRIMARY);
         lblTitle.setHorizontalAlignment(SwingConstants.CENTER);
         add(lblTitle, BorderLayout.NORTH);
         
-        // --- CENTER: Main Content ---
         JPanel pnlMain = new JPanel(new BorderLayout(10, 10));
         pnlMain.setBackground(Color.WHITE);
         
-        // Top: Filter + Summary
         JPanel pnlTop = new JPanel();
         pnlTop.setLayout(new BoxLayout(pnlTop, BoxLayout.Y_AXIS));
         pnlTop.setBackground(Color.WHITE);
@@ -82,17 +70,14 @@ public class ThongKeDoanhThuPanel extends JPanel {
         
         pnlMain.add(pnlTop, BorderLayout.NORTH);
         
-        // Center: Table
         JPanel pnlTable = createTableArea();
         pnlMain.add(pnlTable, BorderLayout.CENTER);
         
         add(pnlMain, BorderLayout.CENTER);
         
-        // --- SOUTH: Buttons ---
         JPanel pnlButtons = createButtonArea();
         add(pnlButtons, BorderLayout.SOUTH);
         
-        // Add action listeners
         addActionListeners();
     }
     
@@ -105,20 +90,18 @@ public class ThongKeDoanhThuPanel extends JPanel {
         pnlFilter.setPreferredSize(new Dimension(0, 120));
         pnlFilter.setMaximumSize(new Dimension(Integer.MAX_VALUE, 120));
         
-        int lblW = 100, inputW = 250, gap = 20; // tăng inputW cho select loại thống kê
+        int lblW = 100, inputW = 250, gap = 20; 
         
-        // Row 1
         JLabel lblLoaiThongKe = new JLabel("Loại thống kê:");
         lblLoaiThongKe.setBounds(gap, 25, lblW, 30);
         lblLoaiThongKe.setFont(FONT_LABEL);
         pnlFilter.add(lblLoaiThongKe);
         
         cboLoaiThongKe = new JComboBox<>(new String[]{"Theo ngày", "Theo tháng", "Theo năm", "Theo phương thức TT"});
-        cboLoaiThongKe.setBounds(lblW + gap, 25, inputW, 30); // tăng chiều dài
+        cboLoaiThongKe.setBounds(lblW + gap, 25, inputW, 30);
         cboLoaiThongKe.setFont(FONT_INPUT);
         pnlFilter.add(cboLoaiThongKe);
         
-        // Row 1 - continued
         JLabel lblTuNgay = new JLabel("Từ ngày:");
         lblTuNgay.setBounds(lblW + inputW + gap * 2, 25, lblW, 30);
         lblTuNgay.setFont(FONT_LABEL);
@@ -130,7 +113,6 @@ public class ThongKeDoanhThuPanel extends JPanel {
         spnTuNgay.setBounds(lblW * 2 + inputW + gap * 3, 25, inputW, 30);
         pnlFilter.add(spnTuNgay);
         
-        // Row 1 - continued
         JLabel lblDenNgay = new JLabel("Đến ngày:");
         lblDenNgay.setBounds(lblW * 2 + inputW * 2 + gap * 4, 25, lblW, 30);
         lblDenNgay.setFont(FONT_LABEL);
@@ -142,7 +124,6 @@ public class ThongKeDoanhThuPanel extends JPanel {
         spnDenNgay.setBounds(lblW * 3 + inputW * 2 + gap * 5, 25, inputW, 30);
         pnlFilter.add(spnDenNgay);
         
-        // Row 2 - For year selection
         JLabel lblNam = new JLabel("Năm:");
         lblNam.setBounds(gap, 60, lblW, 30);
         lblNam.setFont(FONT_LABEL);
@@ -254,7 +235,6 @@ public class ThongKeDoanhThuPanel extends JPanel {
         spnDenNgay.setVisible(showDateRange);
         spnNam.setVisible(showYear);
         
-        // Find and show/hide labels
         Container parent = spnTuNgay.getParent();
         for (Component comp : parent.getComponents()) {
             if (comp instanceof JLabel) {
@@ -292,7 +272,6 @@ public class ThongKeDoanhThuPanel extends JPanel {
             }
         });
         
-        // Right align number columns
         DefaultTableCellRenderer rightRenderer = new DefaultTableCellRenderer();
         rightRenderer.setHorizontalAlignment(JLabel.RIGHT);
         
@@ -413,10 +392,6 @@ public class ThongKeDoanhThuPanel extends JPanel {
             lblDoanhThuThucTe.setText("Doanh thu thực tế: 0 VNĐ");
             lblSoDonHang.setText("Số đơn hàng: 0");
         }
-    }
-    
-    private void xuatExcel() {
-        // Đã loại bỏ chức năng xuất Excel
     }
     
     private void lamMoi() {
