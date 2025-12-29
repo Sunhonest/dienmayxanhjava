@@ -2,10 +2,6 @@ package domain;
 
 import java.util.Date;
 
-/**
- * Domain class cho Voucher
- * @author nguye
- */
 public class Voucher {
     private int voucherID;
     private String maVoucher;

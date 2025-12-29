@@ -1,9 +1,8 @@
-package view.viewThongKe;
 
+package view.viewThongKe;
 import controller.ThongKe.ThongKeController;
 import model.Kho.DanhMucDAO;
 import domain.DanhMuc;
-
 import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -15,46 +14,28 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-/**
- * Panel thống kê sản phẩm bán chạy - Redesigned with modern layout
- * @author nguye
- */
 public class ThongKeSanPhamPanel extends JPanel {
-    
-    // Components
     private JTable tblThongKe;
     private DefaultTableModel model;
-    
-    // Filter components
     private JSpinner spnTuNgay, spnDenNgay;
     private JComboBox<String> cboLoaiThongKe;
     private JComboBox<Object> cboDanhMuc;
     private JSpinner spnSoLuong, spnNguongTonKho;
-    
-    // Summary labels
     private JLabel lblTongSanPham, lblTongSoLuongBan, lblTongDoanhThu;
-    
-    // Buttons
     private JButton btnThongKe, btnXuat, btnLamMoi;
-    
-    // Controllers
     private ThongKeController thongKeController;
     private DanhMucDAO danhMucDAO;
-    
-    // Colors & Fonts - Updated to match voucher management style
     private final Color COLOR_PRIMARY = Color.decode("#2196F3");
     private final Color COLOR_SUCCESS = Color.decode("#4CAF50");
     private final Color COLOR_WARNING = Color.decode("#FF9800");
     private final Color COLOR_INFO = Color.decode("#00BCD4");
     private final Color COLOR_DANGER = Color.decode("#F44336");
     private final Color COLOR_PURPLE = Color.decode("#9C27B0");
-    
     private final Font FONT_HEADER = new Font("Arial", Font.BOLD, 24);
     private final Font FONT_FORM_TITLE = new Font("Arial", Font.BOLD, 18);
     private final Font FONT_LABEL = new Font("Arial", Font.BOLD, 14);
     private final Font FONT_INPUT = new Font("Arial", Font.PLAIN, 14);
     private final Font FONT_SUMMARY = new Font("Arial", Font.BOLD, 16);
-    
     public ThongKeSanPhamPanel() {
         thongKeController = new ThongKeController();
         danhMucDAO = new DanhMucDAO();
@@ -462,7 +443,6 @@ public class ThongKeSanPhamPanel extends JPanel {
     }
     
     private void xuatExcel() {
-        // TODO: Implement Excel export functionality
         JOptionPane.showMessageDialog(this, "Chức năng xuất Excel đang phát triển!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
     }
     

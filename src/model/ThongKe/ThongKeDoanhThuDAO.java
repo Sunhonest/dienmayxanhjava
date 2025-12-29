@@ -7,10 +7,6 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * DAO class cho thống kê doanh thu
- * @author nguye
- */
 public class ThongKeDoanhThuDAO {
 
     /**

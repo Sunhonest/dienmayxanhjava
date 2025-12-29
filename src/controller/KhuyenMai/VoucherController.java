@@ -7,10 +7,6 @@ import javax.swing.*;
 import java.util.Date;
 import java.util.List;
 
-/**
- * Controller cho quản lý voucher
- * @author nguye
- */
 public class VoucherController {
     private VoucherDAO voucherDAO;
 

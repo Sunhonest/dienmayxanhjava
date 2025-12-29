@@ -17,10 +17,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-/**
- * Panel quản lý voucher khuyến mãi - Redesigned with modern layout
- * @author nguye
- */
 public class QuanLyVoucher extends JPanel {
     
     // Mode enum

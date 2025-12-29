@@ -1,11 +1,6 @@
 package domain;
 
 import java.util.Date;
-
-/**
- * Domain class cho Đơn hàng
- * @author nguye
- */
 public class DonHang {
     private String maDonHang;
     private String maKH;           // Added to match database

@@ -1,9 +1,5 @@
 package domain;
 
-/**
- * Domain class cho thống kê sản phẩm bán chạy
- * @author nguye
- */
 public class ThongKeSanPham {
     private String maSP;
     private String tenSP;

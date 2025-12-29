@@ -1,9 +1,5 @@
 package domain;
 
-/**
- * Domain class cho thống kê doanh thu
- * @author nguye
- */
 public class ThongKeDoanhThu {
     private String khoanThoiGian;    // Ngày, tháng, năm
     private double tongDoanhThu;

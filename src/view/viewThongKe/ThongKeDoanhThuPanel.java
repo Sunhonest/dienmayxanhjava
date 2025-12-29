@@ -13,10 +13,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-/**
- * Panel thống kê doanh thu
- * @author nguye
- */
 public class ThongKeDoanhThuPanel extends JPanel {
     
     // Components
