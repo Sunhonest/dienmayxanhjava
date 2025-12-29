@@ -168,4 +168,56 @@ public class DonHangDAO {
         }
         return 0;
     }
+    public double tinhTienGiamTheoVoucher(int voucherId, double tongTien) {
+    String sql = """
+        SELECT VoucherID, LoaiGiam, GiaTriGiam, GiamToiDa, DonHangToiThieu,
+               NgayBatDau, NgayKetThuc, SoLuong, TrangThai
+        FROM voucher
+        WHERE VoucherID = ?
+    """;
+    try (Connection con = ConnectDB.getConnection();
+         PreparedStatement ps = con.prepareStatement(sql)) {
+
+        ps.setInt(1, voucherId);
+        ResultSet rs = ps.executeQuery();
+
+        if (!rs.next()) return 0.0;
+
+        String trangThai = rs.getString("TrangThai");
+        if (!"KICH_HOAT".equalsIgnoreCase(trangThai)) return 0.0;
+
+        double giaTriGiam = rs.getDouble("GiaTriGiam");
+        double giamToiDa = rs.getDouble("GiamToiDa");
+        double donToiThieu = rs.getDouble("DonHangToiThieu");
+
+        Timestamp batDau = rs.getTimestamp("NgayBatDau");
+        Timestamp ketThuc = rs.getTimestamp("NgayKetThuc");
+        Timestamp now = new Timestamp(System.currentTimeMillis());
+
+        if (batDau != null && now.before(batDau)) return 0.0;
+        if (ketThuc != null && now.after(ketThuc)) return 0.0;
+
+        if (tongTien < donToiThieu) return 0.0;
+
+        String loaiGiam = rs.getString("LoaiGiam");
+        double tienGiam;
+
+        if ("PHAN_TRAM".equalsIgnoreCase(loaiGiam)) {
+            // GiaTriGiam = % (ví dụ 10 = 10%)
+            tienGiam = tongTien * giaTriGiam / 100.0;
+        } else { // TIEN_MAT
+            tienGiam = giaTriGiam;
+        }
+
+        if (giamToiDa > 0) tienGiam = Math.min(tienGiam, giamToiDa);
+        if (tienGiam > tongTien) tienGiam = tongTien;
+        if (tienGiam < 0) tienGiam = 0;
+
+        return tienGiam;
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        return 0.0;
+    }
+}
 }

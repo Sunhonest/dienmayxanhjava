@@ -91,13 +91,30 @@ public class QLDHController implements ActionListener {
             JOptionPane.showMessageDialog(view, "Mã đơn hàng đã tồn tại!");
             return;
         }
+         // 1) Tính tiền giảm từ bảng voucher theo VoucherID
+            double tongTien = dh.getTongTien(); // nếu QLDH đang float thì cast sang double
+            int voucherId = dh.getVoucherID();
 
+            double tienGiam = 0.0;
+            if (voucherId > 0) {
+                tienGiam = dao.tinhTienGiamTheoVoucher(voucherId, tongTien);
+            }
+
+        // 2) Set lại tiền giảm cho đúng trước khi insert DB
+        dh.setTienGiam((float) tienGiam); // hoặc double tùy domain bạn
+
+        // 3) Insert DB
         if (dao.insert(dh) > 0) {
             JOptionPane.showMessageDialog(view, "Thêm thành công!");
             loadData();
             view.resetForm();
         }
-    }
+            if (dao.insert(dh) > 0) {
+                JOptionPane.showMessageDialog(view, "Thêm thành công!");
+                loadData();
+                view.resetForm();
+            }
+        }
 
     private void xuLySua() {
         QLDH dh = view.getDonHangFromInput();

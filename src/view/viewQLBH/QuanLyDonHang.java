@@ -145,6 +145,7 @@ public class QuanLyDonHang extends JPanel{
         NumberFormat nf = new DecimalFormat("#,##0.00");
         txtTongTien = new JFormattedTextField(nf);
         txtTienGiam = new JFormattedTextField(nf);
+        txtTienGiam.setEditable(false); 
         txtTongTien.setValue(0.00);
         txtTienGiam.setValue(0.00);
 
@@ -318,5 +319,6 @@ public class QuanLyDonHang extends JPanel{
         btnSua.setEnabled(false);
         btnXoa.setEnabled(false);
     }
+    
 }
 
