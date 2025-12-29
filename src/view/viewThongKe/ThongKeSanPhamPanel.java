@@ -22,17 +22,14 @@ public class ThongKeSanPhamPanel extends JPanel {
     private JComboBox<Object> cboDanhMuc;
     private JSpinner spnSoLuong, spnNguongTonKho;
     private JLabel lblTongSanPham, lblTongSoLuongBan, lblTongDoanhThu;
-    private JButton btnThongKe, btnXuat, btnLamMoi;
+    private JButton btnThongKe, btnLamMoi;
     private ThongKeController thongKeController;
     private DanhMucDAO danhMucDAO;
     private final Color COLOR_PRIMARY = Color.decode("#2196F3");
     private final Color COLOR_SUCCESS = Color.decode("#4CAF50");
     private final Color COLOR_WARNING = Color.decode("#FF9800");
     private final Color COLOR_INFO = Color.decode("#00BCD4");
-    private final Color COLOR_DANGER = Color.decode("#F44336");
-    private final Color COLOR_PURPLE = Color.decode("#9C27B0");
     private final Font FONT_HEADER = new Font("Arial", Font.BOLD, 24);
-    private final Font FONT_FORM_TITLE = new Font("Arial", Font.BOLD, 18);
     private final Font FONT_LABEL = new Font("Arial", Font.BOLD, 14);
     private final Font FONT_INPUT = new Font("Arial", Font.PLAIN, 14);
     private final Font FONT_SUMMARY = new Font("Arial", Font.BOLD, 16);
@@ -49,18 +46,15 @@ public class ThongKeSanPhamPanel extends JPanel {
         setBackground(Color.WHITE);
         setBorder(new EmptyBorder(20, 20, 20, 20));
         
-        // --- TITLE ---
         JLabel lblTitle = new JLabel("THỐNG KÊ SẢN PHẨM BÁN CHẠY");
         lblTitle.setFont(FONT_HEADER);
         lblTitle.setForeground(COLOR_PRIMARY);
         lblTitle.setHorizontalAlignment(SwingConstants.CENTER);
         add(lblTitle, BorderLayout.NORTH);
         
-        // --- CENTER: Main Content ---
         JPanel pnlMain = new JPanel(new BorderLayout(10, 10));
         pnlMain.setBackground(Color.WHITE);
         
-        // Top: Filter + Summary
         JPanel pnlTop = new JPanel();
         pnlTop.setLayout(new BoxLayout(pnlTop, BoxLayout.Y_AXIS));
         pnlTop.setBackground(Color.WHITE);
@@ -73,17 +67,14 @@ public class ThongKeSanPhamPanel extends JPanel {
         
         pnlMain.add(pnlTop, BorderLayout.NORTH);
         
-        // Center: Table
         JPanel pnlTable = createTableArea();
         pnlMain.add(pnlTable, BorderLayout.CENTER);
         
         add(pnlMain, BorderLayout.CENTER);
-        
-        // --- SOUTH: Buttons ---
+
         JPanel pnlButtons = createButtonArea();
         add(pnlButtons, BorderLayout.SOUTH);
-        
-        // Add action listeners
+
         addActionListeners();
     }
     
@@ -97,8 +88,7 @@ public class ThongKeSanPhamPanel extends JPanel {
         pnlFilter.setMaximumSize(new Dimension(Integer.MAX_VALUE, 160));
         
         int gap = 15, lblW = 120, inputW = 200;
-        
-        // === ROW 1: Loại thống kê (full width) ===
+
         JLabel lblLoaiThongKe = new JLabel("Loại thống kê:");
         lblLoaiThongKe.setBounds(gap, 25, lblW, 30);
         lblLoaiThongKe.setFont(FONT_LABEL);
@@ -116,8 +106,6 @@ public class ThongKeSanPhamPanel extends JPanel {
         pnlFilter.add(cboLoaiThongKe);
         cboLoaiThongKe.addActionListener(e -> updateFilterVisibility());
         
-        // === ROW 2: Từ ngày | Đến ngày | Số lượng (Top) ===
-        // Từ ngày
         JLabel lblTuNgay = new JLabel("Từ ngày:");
         lblTuNgay.setBounds(gap, 60, lblW, 30);
         lblTuNgay.setFont(FONT_LABEL);
@@ -129,7 +117,6 @@ public class ThongKeSanPhamPanel extends JPanel {
         spnTuNgay.setBounds(lblW + gap, 60, inputW, 30);
         pnlFilter.add(spnTuNgay);
         
-        // Đến ngày
         JLabel lblDenNgay = new JLabel("Đến ngày:");
         lblDenNgay.setBounds(lblW + inputW + gap * 2, 60, lblW, 30);
         lblDenNgay.setFont(FONT_LABEL);
@@ -141,7 +128,6 @@ public class ThongKeSanPhamPanel extends JPanel {
         spnDenNgay.setBounds(lblW * 2 + inputW + gap * 3, 60, inputW, 30);
         pnlFilter.add(spnDenNgay);
         
-        // Số lượng (Top)
         JLabel lblSoLuong = new JLabel("Số lượng (Top):");
         lblSoLuong.setBounds(lblW * 2 + inputW * 2 + gap * 4, 60, lblW, 30);
         lblSoLuong.setFont(FONT_LABEL);
@@ -152,8 +138,6 @@ public class ThongKeSanPhamPanel extends JPanel {
         spnSoLuong.setFont(FONT_INPUT);
         pnlFilter.add(spnSoLuong);
         
-        // === ROW 3: Danh mục / Ngưỡng tồn kho (conditional) ===
-        // Danh mục
         JLabel lblDanhMuc = new JLabel("Danh mục:");
         lblDanhMuc.setBounds(gap, 95, lblW, 30);
         lblDanhMuc.setFont(FONT_LABEL);
@@ -164,7 +148,6 @@ public class ThongKeSanPhamPanel extends JPanel {
         cboDanhMuc.setFont(FONT_INPUT);
         pnlFilter.add(cboDanhMuc);
         
-        // Ngưỡng tồn kho
         JLabel lblNguongTonKho = new JLabel("Ngưỡng tồn kho:");
         lblNguongTonKho.setBounds(lblW + inputW + gap * 2, 95, lblW + 20, 30);
         lblNguongTonKho.setFont(FONT_LABEL);
@@ -273,7 +256,6 @@ public class ThongKeSanPhamPanel extends JPanel {
         spnSoLuong.setVisible(showSoLuong);
         spnNguongTonKho.setVisible(showNguongTonKho);
         
-        // Update labels visibility
         Container parent = spnTuNgay.getParent();
         for (Component comp : parent.getComponents()) {
             if (comp instanceof JLabel) {
@@ -316,20 +298,18 @@ public class ThongKeSanPhamPanel extends JPanel {
             }
         });
         
-        // Center align some columns
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
         centerRenderer.setHorizontalAlignment(JLabel.CENTER);
         
-        // Right align number columns
         DefaultTableCellRenderer rightRenderer = new DefaultTableCellRenderer();
         rightRenderer.setHorizontalAlignment(JLabel.RIGHT);
         
-        table.getColumnModel().getColumn(0).setCellRenderer(centerRenderer); // Mã SP
-        table.getColumnModel().getColumn(3).setCellRenderer(rightRenderer);  // Số lượng bán
-        table.getColumnModel().getColumn(4).setCellRenderer(rightRenderer);  // Doanh thu
-        table.getColumnModel().getColumn(5).setCellRenderer(rightRenderer);  // Giá bán
-        table.getColumnModel().getColumn(6).setCellRenderer(centerRenderer); // Tồn kho
-        table.getColumnModel().getColumn(7).setCellRenderer(centerRenderer); // Trạng thái
+        table.getColumnModel().getColumn(0).setCellRenderer(centerRenderer);
+        table.getColumnModel().getColumn(3).setCellRenderer(rightRenderer);  
+        table.getColumnModel().getColumn(4).setCellRenderer(rightRenderer);  
+        table.getColumnModel().getColumn(5).setCellRenderer(rightRenderer); 
+        table.getColumnModel().getColumn(6).setCellRenderer(centerRenderer); 
+        table.getColumnModel().getColumn(7).setCellRenderer(centerRenderer); 
     }
     
     private void setDefaultValues() {
@@ -440,10 +420,6 @@ public class ThongKeSanPhamPanel extends JPanel {
             lblTongSoLuongBan.setText("Tổng số lượng bán: 0");
             lblTongDoanhThu.setText("Tổng doanh thu: 0 VNĐ");
         }
-    }
-    
-    private void xuatExcel() {
-        JOptionPane.showMessageDialog(this, "Chức năng xuất Excel đang phát triển!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
     }
     
     private void lamMoi() {

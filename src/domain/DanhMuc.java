@@ -1,14 +1,5 @@
 package domain;
 
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
-
-/**
- *
- * @author nguye
- */
 public class DanhMuc {
     private String maDanhMuc;
     private String tenDanhMuc;

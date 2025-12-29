@@ -9,13 +9,6 @@ import java.util.List;
 
 public class ThongKeSanPhamDAO {
 
-    /**
-     * Thống kê sản phẩm bán chạy nhất trong khoảng thời gian
-     * @param ngayBatDau ngày bắt đầu (yyyy-mm-dd)
-     * @param ngayKetThuc ngày kết thúc (yyyy-mm-dd)
-     * @param limit số lượng sản phẩm muốn lấy (top N)
-     * @return danh sách sản phẩm bán chạy
-     */
     public List<ThongKeSanPham> getSanPhamBanChay(String ngayBatDau, String ngayKetThuc, int limit) {
         List<ThongKeSanPham> list = new ArrayList<>();
         String sql = "SELECT sp.MaSP, sp.TenSP, dm.TenDanhMuc as danhMuc, " +
@@ -59,13 +52,6 @@ public class ThongKeSanPhamDAO {
         return list;
     }
 
-    /**
-     * Thống kê sản phẩm bán chậm nhất trong khoảng thời gian
-     * @param ngayBatDau ngày bắt đầu (yyyy-mm-dd)
-     * @param ngayKetThuc ngày kết thúc (yyyy-mm-dd)
-     * @param limit số lượng sản phẩm muốn lấy (top N)
-     * @return danh sách sản phẩm bán chậm
-     */
     public List<ThongKeSanPham> getSanPhamBanCham(String ngayBatDau, String ngayKetThuc, int limit) {
         List<ThongKeSanPham> list = new ArrayList<>();
         String sql = "SELECT sp.MaSP, sp.TenSP, dm.TenDanhMuc as danhMuc, " +
@@ -110,13 +96,7 @@ public class ThongKeSanPhamDAO {
         return list;
     }
 
-    /**
-     * Thống kê sản phẩm theo danh mục
-     * @param maDanhMuc mã danh mục (null để lấy tất cả)
-     * @param ngayBatDau ngày bắt đầu
-     * @param ngayKetThuc ngày kết thúc
-     * @return danh sách thống kê sản phẩm theo danh mục
-     */
+
     public List<ThongKeSanPham> getSanPhamTheoDanhMuc(String maDanhMuc, String ngayBatDau, String ngayKetThuc) {
         List<ThongKeSanPham> list = new ArrayList<>();
         String sql = "SELECT sp.MaSP, sp.TenSP, dm.TenDanhMuc as danhMuc, " +
@@ -167,11 +147,7 @@ public class ThongKeSanPhamDAO {
         return list;
     }
 
-    /**
-     * Thống kê sản phẩm sắp hết hàng
-     * @param nguongTonKho ngưỡng tồn kho tối thiểu
-     * @return danh sách sản phẩm sắp hết hàng
-     */
+
     public List<ThongKeSanPham> getSanPhamSapHetHang(int nguongTonKho) {
         List<ThongKeSanPham> list = new ArrayList<>();
         String sql = "SELECT sp.MaSP, sp.TenSP, dm.TenDanhMuc as danhMuc, " +
@@ -207,12 +183,6 @@ public class ThongKeSanPhamDAO {
         return list;
     }
 
-    /**
-     * Thống kê doanh thu theo danh mục sản phẩm
-     * @param ngayBatDau ngày bắt đầu
-     * @param ngayKetThuc ngày kết thúc
-     * @return danh sách thống kê doanh thu theo danh mục
-     */
     public List<ThongKeSanPham> getDoanhThuTheoDanhMuc(String ngayBatDau, String ngayKetThuc) {
         List<ThongKeSanPham> list = new ArrayList<>();
         String sql = "SELECT dm.MaDanhMuc as maSP, dm.TenDanhMuc as tenSP, dm.TenDanhMuc as danhMuc, " +

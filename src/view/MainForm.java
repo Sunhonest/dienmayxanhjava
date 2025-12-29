@@ -118,7 +118,7 @@ public class MainForm extends JFrame {
         
         addMenuItem("Bán hàng (POS)", 
                 "https://img.icons8.com/fluency/48/pos-terminal.png", 
-                new String[]{"Quản lý đơn hàng", "Quản lý khuyến mại", "Quản lý hóa đơn","Thống kê"});
+                new String[]{"Quản lý đơn hàng", "Quản lý hóa đơn","Thống kê"});
         
         addMenuItem("Dịch vụ bảo hành", 
                 "https://img.icons8.com/fluency/48/maintenance.png",
@@ -439,7 +439,6 @@ public class MainForm extends JFrame {
                 int originalW = originalIcon.getIconWidth();
                 int originalH = originalIcon.getIconHeight();
                 
-                // Tránh lỗi nếu hình ảnh chưa load hoàn toàn
                 if (originalW <= 0 || originalH <= 0) {
                     originalW = 240;
                     originalH = 90;
@@ -453,13 +452,11 @@ public class MainForm extends JFrame {
                 Image img = originalIcon.getImage().getScaledInstance(newW, newH, Image.SCALE_SMOOTH);
                 label.setIcon(new ImageIcon(img));
             } else {
-                // Nếu không tìm thấy file, hiển thị text thay vì lỗi
                 label.setText("ĐIỆN MÁY XANH");
                 label.setForeground(COLOR_PRIMARY);
                 label.setFont(new Font("Segoe UI", Font.BOLD, 20));
             }
         } catch (Exception e) {
-            // Xử lý lỗi một cách êm ái thay vì in stack trace
             System.err.println("Lỗi tải logo: " + e.getMessage());
             label.setText("ĐIỆN MÁY XANH");
             label.setForeground(COLOR_PRIMARY);

@@ -9,12 +9,6 @@ import java.util.List;
 
 public class ThongKeDoanhThuDAO {
 
-    /**
-     * Thống kê doanh thu theo ngày
-     * @param ngayBatDau ngày bắt đầu (yyyy-mm-dd)
-     * @param ngayKetThuc ngày kết thúc (yyyy-mm-dd)
-     * @return danh sách thống kê theo từng ngày
-     */
     public List<ThongKeDoanhThu> thongKeTheoNgay(String ngayBatDau, String ngayKetThuc) {
         List<ThongKeDoanhThu> list = new ArrayList<>();
         String sql = "SELECT DATE(h.NgayLap) as ngay, " +
@@ -51,11 +45,6 @@ public class ThongKeDoanhThuDAO {
         return list;
     }
 
-    /**
-     * Thống kê doanh thu theo tháng
-     * @param nam năm thống kê
-     * @return danh sách thống kê theo từng tháng trong năm
-     */
     public List<ThongKeDoanhThu> thongKeTheoThang(int nam) {
         List<ThongKeDoanhThu> list = new ArrayList<>();
         String sql = "SELECT MONTH(h.NgayLap) as thang, " +
@@ -91,12 +80,6 @@ public class ThongKeDoanhThuDAO {
         return list;
     }
 
-    /**
-     * Thống kê doanh thu theo năm
-     * @param namBatDau năm bắt đầu
-     * @param namKetThuc năm kết thúc
-     * @return danh sách thống kê theo từng năm
-     */
     public List<ThongKeDoanhThu> thongKeTheoNam(int namBatDau, int namKetThuc) {
         List<ThongKeDoanhThu> list = new ArrayList<>();
         String sql = "SELECT YEAR(h.NgayLap) as nam, " +
@@ -133,12 +116,6 @@ public class ThongKeDoanhThuDAO {
         return list;
     }
 
-    /**
-     * Thống kê tổng doanh thu trong khoảng thời gian
-     * @param ngayBatDau ngày bắt đầu
-     * @param ngayKetThuc ngày kết thúc
-     * @return thống kê tổng hợp
-     */
     public ThongKeDoanhThu thongKeTongHop(String ngayBatDau, String ngayKetThuc) {
         String sql = "SELECT " +
                      "SUM(CASE WHEN h.TrangThai = 'DA_THANH_TOAN' THEN h.TongTienHang ELSE 0 END) as tongDoanhThu, " +
@@ -172,12 +149,6 @@ public class ThongKeDoanhThuDAO {
         return null;
     }
 
-    /**
-     * Thống kê doanh thu theo phương thức thanh toán
-     * @param ngayBatDau ngày bắt đầu
-     * @param ngayKetThuc ngày kết thúc
-     * @return danh sách thống kê theo phương thức thanh toán
-     */
     public List<ThongKeDoanhThu> thongKeTheoPhuongThucThanhToan(String ngayBatDau, String ngayKetThuc) {
         List<ThongKeDoanhThu> list = new ArrayList<>();
         String sql = "SELECT h.PhuongThucTT as phuongThuc, " +

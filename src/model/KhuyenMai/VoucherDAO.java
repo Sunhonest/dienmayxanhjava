@@ -9,10 +9,6 @@ import java.util.List;
 
 public class VoucherDAO {
 
-    /**
-     * Lấy tất cả voucher
-     * @return danh sách voucher
-     */
     public List<Voucher> getAll() {
         List<Voucher> list = new ArrayList<>();
         String sql = "SELECT * FROM voucher ORDER BY VoucherID DESC";
@@ -43,11 +39,6 @@ public class VoucherDAO {
         return list;
     }
 
-    /**
-     * Lấy voucher theo ID
-     * @param id ID của voucher
-     * @return voucher hoặc null nếu không tìm thấy
-     */
     public Voucher getById(int id) {
         String sql = "SELECT * FROM voucher WHERE VoucherID = ?";
         
@@ -79,11 +70,6 @@ public class VoucherDAO {
         return null;
     }
 
-    /**
-     * Lấy voucher theo mã voucher
-     * @param maVoucher mã voucher
-     * @return voucher hoặc null nếu không tìm thấy
-     */
     public Voucher getByMaVoucher(String maVoucher) {
         String sql = "SELECT * FROM voucher WHERE MaVoucher = ?";
         
@@ -114,12 +100,6 @@ public class VoucherDAO {
         }
         return null;
     }
-
-    /**
-     * Thêm voucher mới
-     * @param voucher voucher cần thêm
-     * @return số dòng bị ảnh hưởng
-     */
     public int insert(Voucher voucher) {
         String sql = "INSERT INTO voucher (MaVoucher, TenVoucher, LoaiGiam, GiaTriGiam, GiamToiDa, " +
                      "DonHangToiThieu, NgayBatDau, NgayKetThuc, SoLuong, TrangThai, MaNV_Tao) " +
@@ -147,11 +127,7 @@ public class VoucherDAO {
         return 0;
     }
 
-    /**
-     * Cập nhật voucher
-     * @param voucher voucher cần cập nhật
-     * @return số dòng bị ảnh hưởng
-     */
+
     public int update(Voucher voucher) {
         String sql = "UPDATE voucher SET TenVoucher = ?, LoaiGiam = ?, GiaTriGiam = ?, GiamToiDa = ?, " +
                      "DonHangToiThieu = ?, NgayBatDau = ?, NgayKetThuc = ?, SoLuong = ?, TrangThai = ? " +
@@ -178,11 +154,7 @@ public class VoucherDAO {
         return 0;
     }
 
-    /**
-     * Xóa voucher (chỉ xóa những voucher chưa được sử dụng)
-     * @param voucherID ID của voucher cần xóa
-     * @return số dòng bị ảnh hưởng
-     */
+
     public int delete(int voucherID) {
         // Kiểm tra xem voucher có đang được sử dụng trong đơn hàng không
         String checkSql = "SELECT COUNT(*) FROM donhang WHERE VoucherID = ?";
@@ -215,11 +187,6 @@ public class VoucherDAO {
         return 0;
     }
 
-    /**
-     * Kiểm tra mã voucher có bị trùng không
-     * @param maVoucher mã voucher cần kiểm tra
-     * @return true nếu bị trùng, false nếu chưa trùng
-     */
     public boolean isMaVoucherExists(String maVoucher) {
         String sql = "SELECT COUNT(*) FROM voucher WHERE MaVoucher = ?";
         try (Connection cons = ConnectDB.getConnection();
@@ -235,10 +202,6 @@ public class VoucherDAO {
         return false;
     }
 
-    /**
-     * Lấy danh sách voucher đang hoạt động
-     * @return danh sách voucher đang hoạt động
-     */
     public List<Voucher> getActiveVouchers() {
         List<Voucher> list = new ArrayList<>();
         String sql = "SELECT * FROM voucher WHERE TrangThai = 'KICH_HOAT' " +
@@ -270,11 +233,6 @@ public class VoucherDAO {
         return list;
     }
 
-    /**
-     * Giảm số lượng voucher sau khi sử dụng
-     * @param voucherID ID của voucher
-     * @return số dòng bị ảnh hưởng
-     */
     public int decreaseVoucherQuantity(int voucherID) {
         String sql = "UPDATE voucher SET SoLuong = SoLuong - 1 WHERE VoucherID = ? AND SoLuong > 0";
         try (Connection cons = ConnectDB.getConnection();
