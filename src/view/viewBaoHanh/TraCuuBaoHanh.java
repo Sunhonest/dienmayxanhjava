@@ -17,20 +17,25 @@ public class TraCuuBaoHanh extends JPanel {
     private JTable tblKetQua;
     private DefaultTableModel model;
 
-    // --- CÁC NÚT CHỨC NĂNG MỚI (THÊM / SỬA / XÓA) ---
+    // --- CÁC NÚT CHỨC NĂNG ---
     private JButton btnThemMoi, btnSua, btnXoa;
 
-    // Detail Fields
-    private JTextField txtMaPhieu, txtSerial, txtSanPham, txtKhachHang, txtSDT, txtNgayNhan, txtTrangThai;
+    // --- CÁC TRƯỜNG CHI TIẾT ---
+    private JTextField txtMaPhieu, txtMaHoaDon, txtSerial, txtMaSP, txtTenSP;
+    private JTextField txtKhachHang, txtSDT, txtNgayNhan;
+    
+    // --- THAY ĐỔI: Dùng ComboBox cho trạng thái ---
+    private JComboBox<String> cboTrangThai; 
+    // ---------------------------------------------
+    
     private JTextArea txtMoTaLoi;
-    private JLabel lblChiPhi;
 
     // Colors
     private final Color COLOR_PRIMARY = Color.decode("#0097D8");
     private final Color COLOR_BG      = Color.WHITE;
-    private final Color COLOR_BTN_ADD = Color.decode("#28A745"); // Xanh lá
-    private final Color COLOR_BTN_EDIT= Color.decode("#FFC107"); // Vàng
-    private final Color COLOR_BTN_DEL = Color.decode("#E74C3C"); // Đỏ
+    private final Color COLOR_BTN_ADD = Color.decode("#28A745");
+    private final Color COLOR_BTN_EDIT= Color.decode("#FFC107");
+    private final Color COLOR_BTN_DEL = Color.decode("#E74C3C");
 
     public TraCuuBaoHanh() {
         initComponents();
@@ -41,9 +46,7 @@ public class TraCuuBaoHanh extends JPanel {
         setBackground(COLOR_BG);
         setBorder(new EmptyBorder(10, 10, 10, 10));
 
-        // ====================================================================
-        // 1. HEADER & SEARCH
-        // ====================================================================
+        // 1. HEADER
         JPanel pnlTop = new JPanel(new BorderLayout());
         pnlTop.setBackground(COLOR_BG);
         
@@ -55,7 +58,6 @@ public class TraCuuBaoHanh extends JPanel {
 
         JPanel pnlSearch = new JPanel(new FlowLayout(FlowLayout.CENTER));
         pnlSearch.setBackground(COLOR_BG);
-        
         txtTuKhoa = new JTextField(30);
         txtTuKhoa.setPreferredSize(new Dimension(300, 35));
         txtTuKhoa.setBorder(BorderFactory.createLineBorder(COLOR_PRIMARY));
@@ -68,13 +70,12 @@ public class TraCuuBaoHanh extends JPanel {
         pnlSearch.add(txtTuKhoa);
         pnlSearch.add(btnTimKiem);
         pnlTop.add(pnlSearch, BorderLayout.CENTER);
-        
         add(pnlTop, BorderLayout.NORTH);
 
-        // ====================================================================
-        // 2. CENTER: TABLE
-        // ====================================================================
-        String[] columns = {"Mã Phiếu", "Sản phẩm", "Serial", "Khách hàng", "SĐT", "Trạng thái"};
+        // 2. TABLE
+        String[] columns = {
+            "Mã Phiếu", "Mã SP", "Tên SP", "Serial", "Khách hàng", "SĐT", "Ngày nhận", "Trạng thái"
+        };
         model = new DefaultTableModel(columns, 0) {
             @Override public boolean isCellEditable(int row, int col) { return false; }
         };
@@ -85,9 +86,7 @@ public class TraCuuBaoHanh extends JPanel {
         scrTable.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
         add(scrTable, BorderLayout.CENTER);
 
-        // ====================================================================
-        // 3. EAST: CHI TIẾT + CHỨC NĂNG (EDIT/DELETE)
-        // ====================================================================
+        // 3. CHI TIẾT (BÊN PHẢI)
         JPanel pnlRight = new JPanel(new BorderLayout());
         pnlRight.setBackground(COLOR_BG);
         pnlRight.setPreferredSize(new Dimension(350, 0));
@@ -96,20 +95,34 @@ public class TraCuuBaoHanh extends JPanel {
             new EmptyBorder(0, 15, 0, 0)
         ));
 
-        // --- Form chi tiết ---
         JPanel pnlFields = new JPanel();
         pnlFields.setLayout(new BoxLayout(pnlFields, BoxLayout.Y_AXIS));
         pnlFields.setBackground(COLOR_BG);
 
         pnlFields.add(createLabelHeader("CHI TIẾT PHIẾU"));
         
-        txtMaPhieu  = createReadOnlyField(pnlFields, "Mã phiếu:");
-        txtSerial   = createReadOnlyField(pnlFields, "Số Serial/IMEI:");
-        txtSanPham  = createReadOnlyField(pnlFields, "Sản phẩm:");
-        txtKhachHang= createReadOnlyField(pnlFields, "Khách hàng:");
-        txtSDT      = createReadOnlyField(pnlFields, "Số điện thoại:");
-        txtNgayNhan = createReadOnlyField(pnlFields, "Ngày tiếp nhận:");
-        txtTrangThai= createReadOnlyField(pnlFields, "Trạng thái:");
+        txtMaPhieu   = createReadOnlyField(pnlFields, "Mã phiếu:");
+        txtMaHoaDon  = createReadOnlyField(pnlFields, "Mã hóa đơn gốc:");
+        txtSerial    = createReadOnlyField(pnlFields, "Số Serial/IMEI:");
+        txtMaSP      = createReadOnlyField(pnlFields, "Mã sản phẩm:");
+        txtTenSP     = createReadOnlyField(pnlFields, "Tên sản phẩm:");
+        txtKhachHang = createReadOnlyField(pnlFields, "Khách hàng:");
+        txtSDT       = createReadOnlyField(pnlFields, "Số điện thoại:");
+        txtNgayNhan  = createReadOnlyField(pnlFields, "Ngày tiếp nhận:");
+        
+        // --- SỬA TRẠNG THÁI THÀNH COMBOBOX ---
+        pnlFields.add(createLabel("Trạng thái hiện tại:"));
+        cboTrangThai = new JComboBox<>(new String[]{
+            "Mới tiếp nhận", "Đang sửa chữa", "Đã xong", "Đã trả khách"
+        });
+        cboTrangThai.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        cboTrangThai.setBackground(new Color(245, 245, 245));
+        cboTrangThai.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
+        cboTrangThai.setAlignmentX(Component.LEFT_ALIGNMENT);
+        cboTrangThai.setEnabled(false); // Mặc định khóa
+        pnlFields.add(cboTrangThai);
+        pnlFields.add(Box.createVerticalStrut(5));
+        // -------------------------------------
         
         pnlFields.add(createLabel("Mô tả lỗi:"));
         txtMoTaLoi = new JTextArea(3, 20);
@@ -121,22 +134,18 @@ public class TraCuuBaoHanh extends JPanel {
         pnlFields.add(Box.createVerticalGlue());
         pnlRight.add(pnlFields, BorderLayout.CENTER);
 
-        // --- BUTTONS GROUP (DƯỚI CÙNG BÊN PHẢI) ---
         JPanel pnlActions = new JPanel(new GridLayout(1, 3, 5, 0));
         pnlActions.setBackground(COLOR_BG);
         pnlActions.setBorder(new EmptyBorder(10, 0, 0, 0));
         pnlActions.setPreferredSize(new Dimension(0, 40));
 
-        // Nút Thêm (Màu xanh lá)
         btnThemMoi = new JButton("Thêm");
         styleButton(btnThemMoi, COLOR_BTN_ADD);
         
-        // Nút Sửa (Màu vàng)
         btnSua = new JButton("Sửa");
         styleButton(btnSua, COLOR_BTN_EDIT);
-        btnSua.setForeground(Color.BLACK); // Chữ đen cho nền vàng
+        btnSua.setForeground(Color.BLACK);
         
-        // Nút Xóa (Màu đỏ)
         btnXoa = new JButton("Xóa");
         styleButton(btnXoa, COLOR_BTN_DEL);
 
@@ -148,7 +157,7 @@ public class TraCuuBaoHanh extends JPanel {
         add(pnlRight, BorderLayout.EAST);
     }
 
-    // --- HELPERS ---
+    // --- HELPERS STYLE ---
     private void styleTable(JTable table) {
         table.setRowHeight(30);
         table.setFont(new Font("Segoe UI", Font.PLAIN, 14));
@@ -212,28 +221,90 @@ public class TraCuuBaoHanh extends JPanel {
         return l;
     }
 
-    // Getters & Setters
     public String getTuKhoa() { return txtTuKhoa.getText().trim(); }
     public DefaultTableModel getModel() { return model; }
     public JTable getTable() { return tblKetQua; }
     
-    // Hàm set chi tiết
+    // Đổ dữ liệu vào form (ĐÃ CẬP NHẬT LOGIC COMBOBOX)
     public void setThongTinChiTiet(PhieuBaoHanh p) {
         txtMaPhieu.setText(p.getMaPhieu());
+        txtMaHoaDon.setText(p.getMaHoaDon());
         txtSerial.setText(p.getSoSerial());
-        txtSanPham.setText(p.getMaSP());
+        txtMaSP.setText(p.getMaSP());
+        txtTenSP.setText(p.getTenSP());
         txtKhachHang.setText(p.getTenKhachHang());
         txtSDT.setText(p.getSoDienThoai());
         txtNgayNhan.setText(p.getNgayTiepNhan().toString());
-        txtTrangThai.setText(p.getTrangThai());
         txtMoTaLoi.setText(p.getMoTaLoi());
+        
+        // Map từ DB (Tiếng Anh) sang Tiếng Việt cho ComboBox
+        String dbStatus = p.getTrangThai();
+        switch (dbStatus) {
+            case "MOI_TIEP_NHAN": cboTrangThai.setSelectedItem("Mới tiếp nhận"); break;
+            case "DANG_SUA":      cboTrangThai.setSelectedItem("Đang sửa chữa"); break;
+            case "DA_XONG":       cboTrangThai.setSelectedItem("Đã xong"); break;
+            case "DA_TRA":        cboTrangThai.setSelectedItem("Đã trả khách"); break;
+            default:              cboTrangThai.setSelectedIndex(0);
+        }
     }
     
-    // Listener cho nút
     public void addBtnListener(ActionListener al) {
         btnTimKiem.addActionListener(al);
         btnThemMoi.addActionListener(al);
         btnSua.addActionListener(al);
         btnXoa.addActionListener(al);
+    }
+    
+    public JButton getBtnSua() {
+        return btnSua;
+    }
+
+    public JTextField getTxtMaPhieu() {
+        return txtMaPhieu;
+    }
+
+    // Bật/Tắt sửa (ĐÃ CẬP NHẬT CHO COMBOBOX)
+    public void batCheDoSua(boolean enable) {
+        Color bg = enable ? Color.WHITE : new Color(245, 245, 245);
+        
+        txtSerial.setEditable(enable);
+        txtSerial.setBackground(bg);
+        
+        cboTrangThai.setEnabled(enable); // Mở khóa ComboBox
+        cboTrangThai.setBackground(bg);
+        
+        txtMoTaLoi.setEditable(enable);
+        txtMoTaLoi.setBackground(bg);
+    }
+
+    public void setBtnSuaText(String text) {
+        btnSua.setText(text);
+        if (text.equals("Lưu")) {
+            btnSua.setBackground(Color.decode("#007BFF")); 
+        } else {
+            btnSua.setBackground(Color.decode("#FFC107")); 
+        }
+    }
+
+    // Lấy thông tin từ form để Update (ĐÃ CẬP NHẬT LOGIC COMBOBOX)
+    public PhieuBaoHanh getPhieuCapNhat() {
+        PhieuBaoHanh p = new PhieuBaoHanh();
+        p.setMaPhieu(txtMaPhieu.getText());
+        p.setSoSerial(txtSerial.getText());
+        p.setMoTaLoi(txtMoTaLoi.getText());
+        
+        // Lấy tiếng Việt từ ComboBox đổi về mã DB để lưu
+        String selectedText = cboTrangThai.getSelectedItem().toString();
+        String dbValue = "MOI_TIEP_NHAN"; // Mặc định
+
+        switch (selectedText) {
+            case "Mới tiếp nhận": dbValue = "MOI_TIEP_NHAN"; break;
+            case "Đang sửa chữa": dbValue = "DANG_SUA"; break;
+            case "Đã xong":       dbValue = "DA_XONG"; break;
+            case "Đã trả khách":  dbValue = "DA_TRA"; break;
+        }
+        p.setTrangThai(dbValue);
+        
+        return p;
     }
 }

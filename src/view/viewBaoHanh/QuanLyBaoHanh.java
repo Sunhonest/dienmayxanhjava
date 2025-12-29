@@ -37,6 +37,7 @@ public class QuanLyBaoHanh extends JPanel {
     private final Font FONT_SUB_TITLE = new Font("Arial", Font.BOLD, 16);
     private final Font FONT_LABEL     = new Font("Arial", Font.BOLD, 12);
     private final Font FONT_TEXT      = new Font("Arial", Font.PLAIN, 14);
+    private JTextField txtTenSP;
 
     public QuanLyBaoHanh() {
         initComponents();
@@ -62,9 +63,11 @@ public class QuanLyBaoHanh extends JPanel {
         // ====================================================================
         // 2. CENTER: BẢNG DỮ LIỆU (HEADER XANH, CHỮ TRẮNG)
         // ====================================================================
+        // --- TÌM DÒNG NÀY VÀ THAY THẾ ---
         String[] columns = {
-            "Mã Phiếu", "Mã SP", "Serial/IMEI", "Khách hàng", "SĐT", "Ngày nhận", "Trạng thái"
+            "Mã Phiếu", "Mã SP", "Tên SP", "Serial/IMEI", "Khách hàng", "SĐT", "Ngày nhận", "Trạng thái", "Lỗi"
         };
+        // (Lưu ý: Mình đã thêm "Tên SP" và "Lỗi" vào danh sách này)
         model = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) { return false; }
@@ -99,49 +102,84 @@ public class QuanLyBaoHanh extends JPanel {
 
         // --- 3.2 FIELDS: CÁC Ô NHẬP LIỆU ---
         // Dùng Box Layout Y_AXIS để xếp chồng dọc
+        // --- 3.2 FIELDS: CÁC Ô NHẬP LIỆU ---
         JPanel pnlFields = new JPanel();
         pnlFields.setLayout(new BoxLayout(pnlFields, BoxLayout.Y_AXIS));
         pnlFields.setBackground(Color.WHITE);
 
-        // Mã phiếu
+        // 1. Mã phiếu (Giữ nguyên)
         txtMaPhieu = createField(pnlFields, "Mã phiếu:");
-        txtMaPhieu.setEnabled(false);
+        txtMaPhieu.setEnabled(true); // Cho phép nhập tay (hoặc để false nếu dùng tự động sinh)
 
-        // Serial + Button Check (Gom chung 1 dòng)
-        pnlFields.add(createLabel("Số Serial/IMEI:"));
-        JPanel pnlSer = new JPanel(new BorderLayout(5, 0));
-        pnlSer.setBackground(Color.WHITE);
-        pnlSer.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
-        pnlSer.setAlignmentX(Component.LEFT_ALIGNMENT);
+        // ====================================================================
+        // 2. ĐỔI MỚI: MÃ HÓA ĐƠN + NÚT CHECK (Đưa lên trên)
+        // ====================================================================
+        pnlFields.add(createLabel("Mã Hóa Đơn (Nhập để tra cứu):"));
+        JPanel pnlCheckRow = new JPanel(new BorderLayout(5, 0));
+        pnlCheckRow.setBackground(Color.WHITE);
+        pnlCheckRow.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
+        pnlCheckRow.setAlignmentX(Component.LEFT_ALIGNMENT);
         
-        txtSoSerial = new JTextField(); styleTextField(txtSoSerial);
+        // Khởi tạo txtMaHoaDon tại đây
+        txtMaHoaDon = new JTextField(); 
+        styleTextField(txtMaHoaDon);
+        txtMaHoaDon.setEnabled(true); // QUAN TRỌNG: Phải mở để nhập thì mới check được
+        
+        // Nút Check
         btnCheckSerial = new JButton("Check"); 
         btnCheckSerial.setBackground(Color.decode("#FF9800"));
         btnCheckSerial.setForeground(Color.BLACK);
         btnCheckSerial.setFocusPainted(false);
+        // Đặt ActionCommand để Controller bắt được
+        btnCheckSerial.setActionCommand("Check"); 
         
-        pnlSer.add(txtSoSerial, BorderLayout.CENTER);
-        pnlSer.add(btnCheckSerial, BorderLayout.EAST);
-        pnlFields.add(pnlSer);
+        pnlCheckRow.add(txtMaHoaDon, BorderLayout.CENTER);
+        pnlCheckRow.add(btnCheckSerial, BorderLayout.EAST);
+        
+        pnlFields.add(pnlCheckRow);
         pnlFields.add(Box.createVerticalStrut(10));
 
-        // Các ô khác
-        // Gom Mã HĐ và Mã SP vào 1 dòng cho gọn (vì form Nhân sự ít trường hơn)
-        JPanel pnlGop = new JPanel(new GridLayout(1, 2, 5, 0));
-        pnlGop.setBackground(Color.WHITE);
-        pnlGop.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
-        pnlGop.setAlignmentX(Component.LEFT_ALIGNMENT);
+        // Khai báo biến txtTenSP ở đầu class hoặc ngay đây nếu lười (nhưng tốt nhất là khai báo private JTextField txtTenSP ở đầu class nhé)
+        // Nếu chưa khai báo ở đầu file thì thêm dòng này vào đầu class: private JTextField txtTenSP;
+
+        // ====================================================================
+        // 3. ĐỔI MỚI: SERIAL + MÃ SP + TÊN SP
+        // ====================================================================
         
-        JPanel p1 = createSubPanel("Mã Hóa Đơn:"); txtMaHoaDon = new JTextField(); styleTextField(txtMaHoaDon); txtMaHoaDon.setEnabled(false); p1.add(txtMaHoaDon);
-        JPanel p2 = createSubPanel("Mã Sản Phẩm:"); txtMaSP = new JTextField(); styleTextField(txtMaSP); txtMaSP.setEnabled(false); p2.add(txtMaSP);
-        pnlGop.add(p1); pnlGop.add(p2);
-        pnlFields.add(pnlGop);
+        // --- Dòng 1: Số Serial ---
+        pnlFields.add(createLabel("Số Serial/IMEI thực tế:"));
+        txtSoSerial = new JTextField(); styleTextField(txtSoSerial);
+        pnlFields.add(txtSoSerial);
+        pnlFields.add(Box.createVerticalStrut(5));
+
+        // --- Dòng 2: Mã SP và Tên SP (Gom chung 1 hàng) ---
+        JPanel pnlSP = new JPanel(new GridLayout(1, 2, 5, 0));
+        pnlSP.setBackground(Color.WHITE);
+        pnlSP.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
+        pnlSP.setAlignmentX(Component.LEFT_ALIGNMENT);
         
+        // Cột Mã SP
+        JPanel pMa = createSubPanel("Mã Sản Phẩm:"); 
+        txtMaSP = new JTextField(); styleTextField(txtMaSP); txtMaSP.setEnabled(false);
+        pMa.add(txtMaSP);
+        
+        // Cột Tên SP (MỚI)
+        JPanel pTen = createSubPanel("Tên Sản Phẩm:"); 
+        txtTenSP = new JTextField(); styleTextField(txtTenSP); txtTenSP.setEnabled(false);
+        
+        pTen.add(txtTenSP); // Nhớ khai báo biến txtTenSP ở đầu file nhé!
+
+        pnlSP.add(pMa);
+        pnlSP.add(pTen);
+        pnlFields.add(pnlSP);
+        
+        // 4. Các ô còn lại (Giữ nguyên)
         txtTenKhach = createField(pnlFields, "Họ và tên khách:");
         txtSDT = createField(pnlFields, "Số điện thoại:");
         
         pnlFields.add(createLabel("Mô tả lỗi:"));
         txtMoTaLoi = new JTextArea(3, 20);
+        // ... (Giữ nguyên phần còn lại bên dưới của bạn) ...
         txtMoTaLoi.setFont(FONT_TEXT);
         txtMoTaLoi.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
         txtMoTaLoi.setLineWrap(true);
@@ -155,6 +193,7 @@ public class QuanLyBaoHanh extends JPanel {
         cboTrangThai = new JComboBox<>(new String[]{
             "Mới tiếp nhận", "Đang sửa chữa", "Đã xong", "Đã trả khách"
         });
+        cboTrangThai.setEnabled(false);
         cboTrangThai.setFont(FONT_TEXT);
         cboTrangThai.setBackground(Color.WHITE);
         cboTrangThai.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
@@ -307,10 +346,14 @@ public class QuanLyBaoHanh extends JPanel {
         txtSoSerial.setText("");
         txtMaHoaDon.setText("");
         txtMaSP.setText("");
+        if (txtTenSP != null) txtTenSP.setText("");
         txtTenKhach.setText("");
         txtSDT.setText("");
         txtMoTaLoi.setText("");
-        if(cboTrangThai.getItemCount() > 0) cboTrangThai.setSelectedIndex(0);
+        
+        cboTrangThai.setSelectedItem("Mới tiếp nhận");
+        cboTrangThai.setEnabled(false);
+       // if(cboTrangThai.getItemCount() > 0) cboTrangThai.setSelectedIndex(0);
         
         txtSoSerial.setEnabled(true);
         tblBaoHanh.clearSelection();
@@ -326,7 +369,26 @@ public class QuanLyBaoHanh extends JPanel {
         p.setTenKhachHang(txtTenKhach.getText().trim());
         p.setSoDienThoai(txtSDT.getText().trim());
         p.setMoTaLoi(txtMoTaLoi.getText().trim());
-        p.setTrangThai(cboTrangThai.getSelectedItem().toString());
+        // --- BẮT ĐẦU SỬA ---
+String selectedText = cboTrangThai.getSelectedItem().toString();
+String dbValue = "MOI_TIEP_NHAN"; // Mặc định
+
+switch (selectedText) {
+    case "Mới tiếp nhận":
+        dbValue = "MOI_TIEP_NHAN";
+        break;
+    case "Đang sửa chữa":
+        dbValue = "DANG_SUA";
+        break;
+    case "Đã xong":
+        dbValue = "DA_XONG";
+        break;
+    case "Đã trả khách":
+        dbValue = "DA_TRA";
+        break;
+}
+p.setTrangThai(dbValue);
+// --- KẾT THÚC SỬA ---
         
         try {
             p.setNgayTiepNhan(java.sql.Date.valueOf(txtNgayTiepNhan.getText()));
@@ -344,13 +406,21 @@ public class QuanLyBaoHanh extends JPanel {
         txtTenKhach.setText(p.getTenKhachHang());
         txtSDT.setText(p.getSoDienThoai());
         txtMoTaLoi.setText(p.getMoTaLoi());
-        
+        if (txtTenSP != null) txtTenSP.setText(p.getTenSP());
         // Map trạng thái từ DB sang Combobox
         String stt = p.getTrangThai();
         // Cần map lại nếu trong DB lưu ENUM (MOI_TIEP_NHAN) sang Tiếng Việt
         // Ở đây giả sử DB lưu gì hiện nấy, hoặc bạn dùng logic cũ
-        cboTrangThai.setSelectedItem(stt); 
-        
+        // Map từ DB (Tiếng Anh) sang View (Tiếng Việt)
+String dbStatus = p.getTrangThai();
+switch (dbStatus) {
+    case "MOI_TIEP_NHAN": cboTrangThai.setSelectedItem("Mới tiếp nhận"); break;
+    case "DANG_SUA":      cboTrangThai.setSelectedItem("Đang sửa chữa"); break;
+    case "DA_XONG":       cboTrangThai.setSelectedItem("Đã xong"); break;
+    case "DA_TRA":        cboTrangThai.setSelectedItem("Đã trả khách"); break;
+    default:              cboTrangThai.setSelectedIndex(0);
+}
+        cboTrangThai.setEnabled(true);
         setTrangThaiNut(true);
     }
 
@@ -364,4 +434,20 @@ public class QuanLyBaoHanh extends JPanel {
 
     public JTable getTable() { return tblBaoHanh; }
     public DefaultTableModel getModel() { return model; }
+
+public JTextField getTxtMaHoaDon() {
+        return txtMaHoaDon;
+    }
+
+    // Hàm điền dữ liệu tự động khi Check thành công
+    // Sửa lại hàm này để nhận 4 tham số
+    public void fillThongTinKiemTra(String maSP, String tenKhach, String sdt, String tenSP) {
+        txtMaSP.setText(maSP);
+        txtTenKhach.setText(tenKhach);
+        txtSDT.setText(sdt);
+        txtTenSP.setText(tenSP); // <-- Điền tên sản phẩm vào ô mới
+    }
 }
+// Thêm vào cuối file QuanLyBaoHanh.java
+
+    

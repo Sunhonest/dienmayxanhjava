@@ -30,11 +30,23 @@ import controller.NhanSu.NhanVienController;
 import controller.NhanSu.TaiKhoanController;
 import controller.NhanSu.ChucVuController;
 import controller.NhanSu.DangNhapController; // QUAN TRỌNG: Để gắn não cho form đăng nhập
+//<<<<<<< HEAD
 import controller.QLBH.QLHDController;
 import controller.QLBH.ThongKeController;
+//=======
+// Thêm 3 dòng này vào danh sách import
+import controller.BaoHanh.BaoHanhController;
+import controller.BaoHanh.TraCuuController;
+import controller.BaoHanh.TraMayController;
+//>>>>>>> stash
 import view.viewKho.QuanLySanPham;
+//<<<<<<< HEAD
 import view.viewQLBH.QuanLyHoaDon;
 import view.viewQLBH.ThongkeQLBH;
+//=======
+ 
+
+//>>>>>>> stash
 
 public class MainForm extends JFrame {
 
@@ -184,28 +196,25 @@ public class MainForm extends JFrame {
         // ... (Code các phần khác giữ nguyên)
 
         // 1. Màn hình Tiếp nhận
+        // ====================================================================
+        // MODULE DỊCH VỤ BẢO HÀNH (Đã kích hoạt toàn bộ)
+        // ====================================================================
+        
+        // 1. Màn hình Tiếp nhận bảo hành
         QuanLyBaoHanh viewTiepNhan = new QuanLyBaoHanh();
-        // new BaoHanhController(viewTiepNhan); // Tạm thời comment lại nếu chưa code xong Controller
+        new BaoHanhController(viewTiepNhan); // Kích hoạt Controller
         pnlCards.add(viewTiepNhan, "Tiếp nhận bảo hành");
 
-        // --- SỬA ĐOẠN NÀY ĐỂ HIỆN GIAO DIỆN TRA CỨU ---
-        
-        // Bước 1: Khởi tạo giao diện (View)
-        TraCuuBaoHanh viewTraCuu = new TraCuuBaoHanh(); 
-        
-        // Bước 2: Controller (VÌ BẠN CHƯA VIẾT NÊN ĐỪNG GỌI NÓ, HOẶC COMMENT LẠI)
-        // new TraCuuController(viewTraCuu); <== Comment dòng này lại để không bị báo lỗi đỏ
-        
-        // Bước 3: THÊM VÀO CARD LAYOUT (QUAN TRỌNG NHẤT)
-        // Cái tên "Tra cứu" trong ngoặc kép PHẢI GIỐNG Y HỆT tên trong menu addMenuItem ở trên
-        pnlCards.add(viewTraCuu, "Tra cứu"); 
-
-        // ----------------------------------------------
+        // 2. Màn hình Tra cứu
+        TraCuuBaoHanh viewTraCuu = new TraCuuBaoHanh();
+        new TraCuuController(viewTraCuu); // Kích hoạt Controller
+        pnlCards.add(viewTraCuu, "Tra cứu"); // Tên phải khớp với Menu bên trái
 
         // 3. Màn hình Trả máy
         TraMay viewTraMay = new TraMay();
-        // new TraMayController(viewTraMay); // Comment lại nếu chưa có
+        new TraMayController(viewTraMay); // Kích hoạt Controller
         pnlCards.add(viewTraMay, "Trả máy");
+//<<<<<<< HEAD
 
         // ===== KHUYẾN MÃI & THỐNG KÊ =====
         QuanLyVoucher viewVoucher = new QuanLyVoucher();
@@ -217,6 +226,8 @@ public class MainForm extends JFrame {
         ThongKeSanPhamPanel viewThongKeSanPham = new ThongKeSanPhamPanel();
         pnlCards.add(viewThongKeSanPham, "Thống kê sản phẩm");
 
+//=======
+//>>>>>>> stash
         // ...
         add(new JScrollPane(pnlMenu), BorderLayout.WEST);
         add(pnlCards, BorderLayout.CENTER);     
