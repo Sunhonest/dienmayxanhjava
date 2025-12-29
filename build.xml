@@ -70,4 +70,11 @@
     nbproject/build-impl.xml file. 
 
     -->
+
+    <!-- Copy icons folder to build/classes after compile -->
+    <target name="-post-compile">
+        <copy todir="${build.classes.dir}/icons">
+            <fileset dir="src/icons"/>
+        </copy>
+    </target>
 </project>

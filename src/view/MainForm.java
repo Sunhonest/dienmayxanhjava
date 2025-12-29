@@ -1,7 +1,6 @@
 package view;
 
 import controller.Kho.SanPhamController;
-import domain.QLBH.QLDH;
 import domain.TaiKhoan;
 import java.awt.*;
 import java.awt.event.*;
@@ -15,7 +14,6 @@ import view.viewQLBH.QuanLyDonHang;
 import view.viewNhanSu.QuanLyChucVu;
 import view.viewNhanSu.QuanLyTaiKhoan;
 import view.viewNhanSu.QuanLyNhanVien;
-import view.DangNhapFrame; // Để mở lại khi đăng xuất
 
 import view.viewKho.QuanLyNhapKho;
 import controller.Kho.NhapKhoController;
@@ -23,6 +21,9 @@ import controller.Kho.NhapKhoController;
 import view.viewBaoHanh.QuanLyBaoHanh;//import viewBaoHanh
 import view.viewBaoHanh.TraCuuBaoHanh; //import viewTraCuuBaoHanh
 import view.viewBaoHanh.TraMay;//import viewTraMay
+import view.viewKhuyenMai.QuanLyVoucher;
+import view.viewThongKe.ThongKeDoanhThuPanel;
+import view.viewThongKe.ThongKeSanPhamPanel;
 // Import Controller
 import controller.QLBH.QLDHController;
 import controller.NhanSu.NhanVienController;
@@ -127,7 +128,7 @@ public class MainForm extends JFrame {
 
         addMenuItem("Khuyến mãi & Thống kê", 
                 "https://img.icons8.com/fluency/48/analytics.png", 
-                new String[]{"Doanh thu ngày", "Doanh thu tháng", "Lợi nhuận"});
+                new String[]{"Quản lý voucher", "Thống kê doanh thu", "Thống kê sản phẩm"});
         
         // Đẩy nút Đăng xuất xuống đáy
         pnlMenu.add(Box.createVerticalGlue());
@@ -199,6 +200,16 @@ public class MainForm extends JFrame {
         TraMay viewTraMay = new TraMay();
         // new TraMayController(viewTraMay); // Comment lại nếu chưa có
         pnlCards.add(viewTraMay, "Trả máy");
+
+        // ===== KHUYẾN MÃI & THỐNG KÊ =====
+        QuanLyVoucher viewVoucher = new QuanLyVoucher();
+        pnlCards.add(viewVoucher, "Quản lý voucher");
+        
+        ThongKeDoanhThuPanel viewThongKeDoanhThu = new ThongKeDoanhThuPanel();
+        pnlCards.add(viewThongKeDoanhThu, "Thống kê doanh thu");
+        
+        ThongKeSanPhamPanel viewThongKeSanPham = new ThongKeSanPhamPanel();
+        pnlCards.add(viewThongKeSanPham, "Thống kê sản phẩm");
 
         // ...
         add(new JScrollPane(pnlMenu), BorderLayout.WEST);
@@ -431,6 +442,12 @@ public class MainForm extends JFrame {
                 ImageIcon originalIcon = new ImageIcon(url);
                 int originalW = originalIcon.getIconWidth();
                 int originalH = originalIcon.getIconHeight();
+                
+                if (originalW <= 0 || originalH <= 0) {
+                    originalW = 240;
+                    originalH = 90;
+                }
+                
                 int targetW = 240; 
                 int targetH = 90; 
                 double ratio = Math.min((double)targetW / originalW, (double)targetH / originalH);
@@ -439,10 +456,16 @@ public class MainForm extends JFrame {
                 Image img = originalIcon.getImage().getScaledInstance(newW, newH, Image.SCALE_SMOOTH);
                 label.setIcon(new ImageIcon(img));
             } else {
-                label.setText("LOGO");
-                label.setForeground(Color.RED);
+                label.setText("ĐIỆN MÁY XANH");
+                label.setForeground(COLOR_PRIMARY);
+                label.setFont(new Font("Segoe UI", Font.BOLD, 20));
             }
-        } catch (Exception e) {}
+        } catch (Exception e) {
+            System.err.println("Lỗi tải logo: " + e.getMessage());
+            label.setText("ĐIỆN MÁY XANH");
+            label.setForeground(COLOR_PRIMARY);
+            label.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        }
     }
     public static void main(String[] args) {
         try { UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName()); } catch (Exception e) {}

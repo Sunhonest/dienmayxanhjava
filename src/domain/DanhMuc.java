@@ -1,39 +1,36 @@
 package domain;
 
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
-
-/**
- *
- * @author nguye
- */
 public class DanhMuc {
-    private String maDM;
-    private String tenDM;
+    private String maDanhMuc;
+    private String tenDanhMuc;
 
     public DanhMuc() {}
 
-    public DanhMuc(String maDM, String tenDM) {
-        this.maDM = maDM;
-        this.tenDM = tenDM;
+    public DanhMuc(String maDanhMuc, String tenDanhMuc) {
+        this.maDanhMuc = maDanhMuc;
+        this.tenDanhMuc = tenDanhMuc;
     }
 
-    public String getMaDM() { return maDM; }
-    public void setMaDM(String maDM) { this.maDM = maDM; }
-    public String getTenDM() { return tenDM; }
-    public void setTenDM(String tenDM) { this.tenDM = tenDM; }
+    public String getMaDanhMuc() { return maDanhMuc; }
+    public void setMaDanhMuc(String maDanhMuc) { this.maDanhMuc = maDanhMuc; }
+    public String getTenDanhMuc() { return tenDanhMuc; }
+    public void setTenDanhMuc(String tenDanhMuc) { this.tenDanhMuc = tenDanhMuc; }
+    
+    // Backward compatibility methods
+    public String getMaDM() { return maDanhMuc; }
+    public void setMaDM(String maDM) { this.maDanhMuc = maDM; }
+    public String getTenDM() { return tenDanhMuc; }
+    public void setTenDM(String tenDM) { this.tenDanhMuc = tenDM; }
 
     @Override
     public String toString() {
-        return tenDM; // Để hiển thị tên trong ComboBox
+        return tenDanhMuc; // Để hiển thị tên trong ComboBox
     }
     
     @Override
     public boolean equals(Object obj) {
         if(obj instanceof DanhMuc) {
-            return this.maDM.equals(((DanhMuc)obj).maDM);
+            return this.maDanhMuc.equals(((DanhMuc)obj).maDanhMuc);
         }
         return false;
     }
