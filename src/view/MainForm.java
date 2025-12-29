@@ -29,7 +29,9 @@ import controller.NhanSu.NhanVienController;
 import controller.NhanSu.TaiKhoanController;
 import controller.NhanSu.ChucVuController;
 import controller.NhanSu.DangNhapController; // QUAN TRỌNG: Để gắn não cho form đăng nhập
+import controller.QLBH.QLHDController;
 import view.viewKho.QuanLySanPham;
+import view.viewQLBH.QuanLyHoaDon;
 
 public class MainForm extends JFrame {
 
@@ -167,7 +169,9 @@ public class MainForm extends JFrame {
         new QLDHController(viewDonHang);  
         pnlCards.add(viewDonHang, "Quản lý đơn hàng");
 
-
+        QuanLyHoaDon viewHD = new QuanLyHoaDon(); 
+        new QLHDController(viewHD);             
+        pnlCards.add(viewHD, "Quản lý hóa đơn");
         
 
         // ... (Code các phần khác giữ nguyên)
