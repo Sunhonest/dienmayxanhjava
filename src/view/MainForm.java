@@ -119,7 +119,7 @@ public class MainForm extends JFrame {
         
         addMenuItem("Bán hàng (POS)", 
                 "https://img.icons8.com/fluency/48/pos-terminal.png", 
-                new String[]{"Quản lý đơn hàng", "Quản lý khuyến mại", "Quản lý hóa đơn","Thống kê"});
+                new String[]{"Quản lý đơn hàng", "Quản lý hóa đơn","Thống kê"});
         
         addMenuItem("Dịch vụ bảo hành", 
                 "https://img.icons8.com/fluency/48/maintenance.png",
