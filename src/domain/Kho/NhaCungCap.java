@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package domain;
+package domain.Kho;
 
 /**
  *
@@ -21,14 +21,30 @@ public class NhaCungCap {
     }
 
     // Getter & Setter
-    public String getMaNCC() { return maNCC; }
-    public void setMaNCC(String maNCC) { this.maNCC = maNCC; }
-    public String getTenNCC() { return tenNCC; }
-    public void setTenNCC(String tenNCC) { this.tenNCC = tenNCC; }
-    public String getDiaChi() { return diaChi; }
-    public void setDiaChi(String diaChi) { this.diaChi = diaChi; }
-    public String getSdt() { return sdt; }
-    public void setSdt(String sdt) { this.sdt = sdt; }
+    public String getMaNCC() { 
+        return maNCC;
+    }
+    public void setMaNCC(String maNCC) { 
+        this.maNCC = maNCC; 
+    }
+    public String getTenNCC() { 
+        return tenNCC; 
+    }
+    public void setTenNCC(String tenNCC) {
+        this.tenNCC = tenNCC; 
+    }
+    public String getDiaChi() { 
+        return diaChi; 
+    }
+    public void setDiaChi(String diaChi) { 
+        this.diaChi = diaChi; 
+    }
+    public String getSdt() { 
+        return sdt; 
+    }
+    public void setSdt(String sdt) { 
+        this.sdt = sdt; 
+    }
 
     @Override
     public String toString() {

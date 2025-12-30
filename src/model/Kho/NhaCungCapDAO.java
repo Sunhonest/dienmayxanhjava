@@ -8,7 +8,7 @@ package model.Kho;
  *
  * @author nguye
  */
-import domain.NhaCungCap;
+import domain.Kho.NhaCungCap;
 import model.ConnectDB;
 import java.sql.*;
 import java.util.ArrayList;
