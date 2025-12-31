@@ -61,10 +61,17 @@ public class SanPhamController implements ActionListener {
         DecimalFormat df = new DecimalFormat("#,###");
         
         for(SanPham sp : listCache) {
-            String tenDM = sp.getMaDanhMuc(); // Tạm thời hiện mã, nếu muốn hiện tên phải map từ listDM
+            String tenDM = sp.getMaDanhMuc(); 
+            // Cập nhật mảng object phù hợp với view mới
             model.addRow(new Object[]{
-                sp.getMaSP(), sp.getTenSP(), tenDM, sp.getThuongHieu(),
-                sp.getTonKho(), sp.getDonViTinh(), df.format(sp.getGiaBan())
+                sp.getMaSP(), 
+                sp.getHinhAnh(), // Thêm trường hình ảnh (URL String) vào đây
+                sp.getTenSP(), 
+                tenDM, 
+                sp.getThuongHieu(),
+                sp.getTonKho(), 
+                sp.getDonViTinh(), 
+                df.format(sp.getGiaBan())
             });
         }
     }
