@@ -4,6 +4,7 @@ import domain.Kho.DanhMuc;
 import domain.Kho.SanPham;
 import java.awt.*;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyListener; // Import thêm KeyListener
 import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
@@ -17,18 +18,19 @@ import javax.swing.table.TableColumnModel;
 
 public class QuanLySanPham extends JPanel {
 
-    // --- COMPONENTS ---
+    // --- COMPONENTS CŨ ---
     private JTable tblSanPham;
     private DefaultTableModel model;
-
-    // Input Fields
     private JTextField txtMaSP, txtTenSP, txtThuongHieu, txtGiaNhap, txtGiaBan, txtBaoHanh, txtHinhAnh;
     private JComboBox<Object> cboDanhMuc;
     private JComboBox<String> cboDonViTinh, cboTrangThaiHang;
     private JTextArea txtMoTa;
-
-    // Buttons
     private JButton btnThem, btnSua, btnXoa, btnLamMoi;
+
+    // --- COMPONENTS MỚI CHO TÌM KIẾM ---
+    private JTextField txtTimKiem;
+    private JComboBox<Object> cboLocDanhMuc;
+    private JButton btnTimKiem;
 
     // --- COLORS & FONTS ---
     private final Color COLOR_PRIMARY = Color.decode("#2196F3");
@@ -43,47 +45,35 @@ public class QuanLySanPham extends JPanel {
     }
 
     private void initComponents() {
-        // Layout chính: BorderLayout
         setLayout(new BorderLayout(10, 10));
         setBackground(Color.WHITE);
-        // Tăng lề trên lên 20px để hạ thấp tiêu đề xuống theo yêu cầu
         setBorder(new EmptyBorder(20, 20, 20, 20));
 
-        // ====================================================================
-        // 1. HEADER (TIÊU ĐỀ LỚN)
-        // ====================================================================
+        // 1. HEADER
         JLabel lblTitle = new JLabel("QUẢN LÝ SẢN PHẨM", SwingConstants.CENTER);
         lblTitle.setFont(FONT_HEADER);
         lblTitle.setForeground(COLOR_PRIMARY);
         add(lblTitle, BorderLayout.NORTH);
 
-        // ====================================================================
-        // 2. CENTER (FORM NHẬP + BẢNG)
-        // ====================================================================
+        // 2. CENTER (Bao gồm Form + Search + Table)
         JPanel pnlCenter = new JPanel(new BorderLayout(0, 15));
         pnlCenter.setBackground(Color.WHITE);
 
-        // --- A. FORM NHẬP LIỆU (QUAY VỀ KIỂU CŨ: TITLEDBORDER) ---
+        // --- A. FORM NHẬP LIỆU (Giữ nguyên code cũ của bạn) ---
         JPanel pnlInputWrapper = new JPanel(new BorderLayout());
         pnlInputWrapper.setBackground(Color.WHITE);
-        
-        // Viền Xám - Tiêu đề Xanh (Kiểu ban đầu bạn ưng ý)
         TitledBorder borderForm = BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(Color.GRAY, 1), 
                 " THÔNG TIN CHI TIẾT ", 
-                TitledBorder.DEFAULT_JUSTIFICATION, 
-                TitledBorder.DEFAULT_POSITION, 
-                FONT_SECTION, 
-                COLOR_PRIMARY
+                TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, 
+                FONT_SECTION, COLOR_PRIMARY
         );
         pnlInputWrapper.setBorder(borderForm);
 
-        // Grid 3 hàng, 4 cột
         JPanel pnlInputs = new JPanel(new GridLayout(3, 4, 20, 15));
         pnlInputs.setBackground(Color.WHITE);
         pnlInputs.setBorder(new EmptyBorder(15, 20, 10, 20));
 
-        // -- Hàng 1
         txtMaSP = createField(pnlInputs, "Mã sản phẩm:");
         txtTenSP = createField(pnlInputs, "Tên sản phẩm:");
         
@@ -94,58 +84,81 @@ public class QuanLySanPham extends JPanel {
         pnlInputs.add(pDM);
 
         txtThuongHieu = createField(pnlInputs, "Thương hiệu:");
-
-        // -- Hàng 2
         txtGiaNhap = createField(pnlInputs, "Giá nhập:");
         txtGiaBan = createField(pnlInputs, "Giá bán:");
         
         JPanel pDVT = new JPanel(new BorderLayout()); pDVT.setBackground(Color.WHITE);
         pDVT.add(createLabel("Đơn vị tính:"), BorderLayout.NORTH);
-        cboDonViTinh = new JComboBox<>(new String[]{"Cái", "Chiếc", "Bộ", "Hộp", "Kg"}); 
-        styleComponent(cboDonViTinh);
+        cboDonViTinh = new JComboBox<>(new String[]{"Cái", "Chiếc", "Bộ", "Hộp", "Kg"}); styleComponent(cboDonViTinh);
         pDVT.add(cboDonViTinh, BorderLayout.CENTER);
         pnlInputs.add(pDVT);
         
         JPanel pTT = new JPanel(new BorderLayout()); pTT.setBackground(Color.WHITE);
         pTT.add(createLabel("Trạng thái:"), BorderLayout.NORTH);
-        cboTrangThaiHang = new JComboBox<>(new String[]{"MOI", "CU", "TRUNG_BAY"}); 
-        styleComponent(cboTrangThaiHang);
+        cboTrangThaiHang = new JComboBox<>(new String[]{"MOI", "CU", "TRUNG_BAY"}); styleComponent(cboTrangThaiHang);
         pTT.add(cboTrangThaiHang, BorderLayout.CENTER);
         pnlInputs.add(pTT);
 
-        // -- Hàng 3
         txtBaoHanh = createField(pnlInputs, "Bảo hành (tháng):");
         txtHinhAnh = createField(pnlInputs, "Link Ảnh:");
         
-        // Mô tả
         JPanel pMoTa = new JPanel(new BorderLayout()); pMoTa.setBackground(Color.WHITE);
         pMoTa.add(createLabel("Mô tả:"), BorderLayout.NORTH);
-        txtMoTa = new JTextArea(1, 1);
-        txtMoTa.setFont(FONT_INPUT);
+        txtMoTa = new JTextArea(1, 1); txtMoTa.setFont(FONT_INPUT);
         txtMoTa.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
         pMoTa.add(new JScrollPane(txtMoTa), BorderLayout.CENTER);
         pnlInputs.add(pMoTa);
         
-        pnlInputs.add(new JLabel("")); // Filler
+        pnlInputs.add(new JLabel("")); 
 
         pnlInputWrapper.add(pnlInputs, BorderLayout.CENTER);
 
-        // Panel Nút bấm
         JPanel pnlButtons = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
         pnlButtons.setBackground(Color.WHITE);
         pnlButtons.setBorder(new EmptyBorder(5, 0, 10, 0));
-        
         btnThem = createButton("Them", "Thêm", Color.decode("#4CAF50"));
         btnSua = createButton("Sua", "Sửa", Color.decode("#FFC107"));
         btnXoa = createButton("Xoa", "Xóa", Color.decode("#F44336"));
         btnLamMoi = createButton("LamMoi", "Làm mới", COLOR_PRIMARY);
-
         pnlButtons.add(btnThem); pnlButtons.add(btnSua); pnlButtons.add(btnXoa); pnlButtons.add(btnLamMoi);
         pnlInputWrapper.add(pnlButtons, BorderLayout.SOUTH);
 
         pnlCenter.add(pnlInputWrapper, BorderLayout.NORTH);
 
-        // --- B. BẢNG DỮ LIỆU ---
+        // ====================================================================
+        // --- B. KHU VỰC BẢNG VÀ TÌM KIẾM (MỚI) ---
+        // ====================================================================
+        JPanel pnlTableArea = new JPanel(new BorderLayout(0, 10));
+        pnlTableArea.setBackground(Color.WHITE);
+
+        // --- 1. PANEL TÌM KIẾM ---
+        JPanel pnlSearch = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 10));
+        pnlSearch.setBackground(Color.WHITE);
+        pnlSearch.setBorder(BorderFactory.createTitledBorder(
+            BorderFactory.createLineBorder(Color.LIGHT_GRAY), " TÌM KIẾM & LỌC ", 
+            TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, FONT_LABEL, Color.GRAY));
+        
+        // Thanh tìm kiếm
+        pnlSearch.add(new JLabel("Từ khóa:"));
+        txtTimKiem = new JTextField(20);
+        styleComponent(txtTimKiem);
+        pnlSearch.add(txtTimKiem);
+
+        // Lọc danh mục
+        pnlSearch.add(new JLabel("Danh mục:"));
+        cboLocDanhMuc = new JComboBox<>();
+        styleComponent(cboLocDanhMuc);
+        cboLocDanhMuc.setPreferredSize(new Dimension(150, 32));
+        pnlSearch.add(cboLocDanhMuc);
+        
+        // Nút tìm (Icon search nếu có thì đẹp hơn)
+        btnTimKiem = createButton("TimKiem", "Tìm", Color.DARK_GRAY);
+        btnTimKiem.setPreferredSize(new Dimension(80, 32));
+        pnlSearch.add(btnTimKiem);
+
+        pnlTableArea.add(pnlSearch, BorderLayout.NORTH);
+
+        // --- 2. BẢNG DỮ LIỆU ---
         String[] columns = {"Mã SP", "Hình ảnh", "Tên SP", "Danh mục", "Thương hiệu", "Tồn", "ĐVT", "Giá bán"};
         model = new DefaultTableModel(columns, 0) {
             @Override
@@ -155,22 +168,22 @@ public class QuanLySanPham extends JPanel {
                 return columnIndex == 1 ? Icon.class : String.class;
             }
         };
-        
         tblSanPham = new JTable(model);
         styleTable(tblSanPham);
 
         JScrollPane scrTable = new JScrollPane(tblSanPham);
         scrTable.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
         
-        pnlCenter.add(scrTable, BorderLayout.CENTER);
+        pnlTableArea.add(scrTable, BorderLayout.CENTER);
+        
+        // Thêm khu vực bảng vào Center chính
+        pnlCenter.add(pnlTableArea, BorderLayout.CENTER);
         
         add(pnlCenter, BorderLayout.CENTER);
     }
 
-    // ========================================================================
-    // HELPER METHODS
-    // ========================================================================
-    
+    // ... (Giữ nguyên các hàm styleTable, CachingImageRenderer, createField, createLabel, styleComponent, createButton) ...
+    // COPY LẠI CÁC HÀM HELPER CŨ CỦA BẠN VÀO ĐÂY (styleTable, CachingImageRenderer, v.v.)
     private void styleTable(JTable table) {
         table.setRowHeight(80);
         table.setFont(new Font("Arial", Font.PLAIN, 14));
@@ -199,7 +212,6 @@ public class QuanLySanPham extends JPanel {
         cm.getColumn(1).setPreferredWidth(90);
         cm.getColumn(2).setPreferredWidth(200);
         
-        // Sử dụng Renderer có Caching để mượt mà
         cm.getColumn(1).setCellRenderer(new CachingImageRenderer());
         
         DefaultTableCellRenderer rightRenderer = new DefaultTableCellRenderer();
@@ -288,8 +300,10 @@ public class QuanLySanPham extends JPanel {
     }
 
     // ========================================================================
-    // GETTERS & SETTERS
+    // GETTERS & SETTERS (Thêm mới các phương thức cho Search)
     // ========================================================================
+    
+    // ... (Giữ nguyên các hàm cũ setTrangThaiNut, addActionListener, resetForm, getSanPhamInput, fillForm, getMaSPChon) ...
     public void setTrangThaiNut(boolean isSelect) {
         btnThem.setEnabled(!isSelect);
         btnThem.setBackground(!isSelect ? Color.decode("#4CAF50") : Color.LIGHT_GRAY);
@@ -305,13 +319,28 @@ public class QuanLySanPham extends JPanel {
         btnSua.addActionListener(ac);
         btnXoa.addActionListener(ac);
         btnLamMoi.addActionListener(ac);
+        // Thêm lắng nghe cho nút tìm và combobox lọc
+        btnTimKiem.addActionListener(ac);
+        cboLocDanhMuc.addActionListener(ac);
+    }
+    
+    // Thêm hàm lắng nghe gõ phím cho ô tìm kiếm
+    public void addKeyListener(KeyListener kl) {
+        txtTimKiem.addKeyListener(kl);
     }
     
     public void setDuLieuDanhMuc(List<DanhMuc> listDM) {
+        // Load cho Combo Nhập liệu
         cboDanhMuc.removeAllItems();
         for(DanhMuc dm : listDM) cboDanhMuc.addItem(dm);
+        
+        // Load cho Combo Lọc (Thêm tùy chọn Tất cả)
+        cboLocDanhMuc.removeAllItems();
+        cboLocDanhMuc.addItem("Tất cả");
+        for(DanhMuc dm : listDM) cboLocDanhMuc.addItem(dm);
     }
     
+    // ... (Các hàm còn lại giữ nguyên)
     public void resetForm() {
         txtMaSP.setText(""); txtTenSP.setText(""); txtThuongHieu.setText("");
         txtGiaNhap.setText(""); txtGiaBan.setText(""); txtBaoHanh.setText(""); 
@@ -365,6 +394,10 @@ public class QuanLySanPham extends JPanel {
         if(r >= 0) return tblSanPham.getValueAt(r, 0).toString();
         return null;
     }
+    
+    // Getter mới cho Search
+    public String getKeyword() { return txtTimKiem.getText().trim().toLowerCase(); }
+    public Object getDanhMucFilter() { return cboLocDanhMuc.getSelectedItem(); }
     
     public JTable getTable() { return tblSanPham; }
     public DefaultTableModel getModel() { return model; }
