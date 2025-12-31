@@ -290,6 +290,7 @@ public class NhapKhoController implements ActionListener {
             view.setSoLuong(sl);
             view.setDonGia(gia);
             view.setGhiChu(ghiChu);
+            view.setTrangThaiNut(true);
             
         }
     }

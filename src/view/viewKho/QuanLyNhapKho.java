@@ -32,6 +32,7 @@ public class QuanLyNhapKho extends JPanel {
 
     public QuanLyNhapKho() {
         initComponents();
+        setTrangThaiNut(false);
     }
     
     private void initComponents() {
@@ -297,6 +298,24 @@ public class QuanLyNhapKho extends JPanel {
         }
     }
 
+    // --- THÊM MỚI HÀM NÀY ---
+    public void setTrangThaiNut(boolean isSelect) {
+        // Nút Thêm: Sáng khi KHÔNG chọn dòng (mode thêm mới), Xám khi chọn dòng
+        btnThem.setEnabled(!isSelect);
+        btnThem.setBackground(!isSelect ? Color.decode("#4CAF50") : Color.LIGHT_GRAY);
+
+        // Nút Sửa: Xám khi KHÔNG chọn dòng, Sáng khi chọn dòng
+        btnSua.setEnabled(isSelect);
+        btnSua.setBackground(isSelect ? Color.decode("#FF9800") : Color.LIGHT_GRAY);
+
+        // Nút Xóa: Xám khi KHÔNG chọn dòng, Sáng khi chọn dòng
+        btnXoa.setEnabled(isSelect);
+        btnXoa.setBackground(isSelect ? Color.decode("#F44336") : Color.LIGHT_GRAY);
+
+        // Mã phiếu: Khóa không cho sửa khi đang chọn dòng lịch sử
+        txtMaPhieu.setEnabled(!isSelect);
+    }
+    
     public String getMaPhieu() { return txtMaPhieu.getText().trim(); }
     public void setMaPhieu(String s) { txtMaPhieu.setText(s); }
     public String getNhanVien() { return txtNhanVien.getText(); }
@@ -314,10 +333,12 @@ public class QuanLyNhapKho extends JPanel {
     public JTable getTable() { return tblLichSuNhap; }
 
     public void clearForm() {
+        txtMaPhieu.setText("");
         txtSoLuong.setText("");
         txtDonGia.setText("");
         txtGhiChu.setText("");
         if(cboSanPham.getItemCount() > 0) cboSanPham.setSelectedIndex(0);
         tblLichSuNhap.clearSelection();
+        setTrangThaiNut(false);
     }
 }
