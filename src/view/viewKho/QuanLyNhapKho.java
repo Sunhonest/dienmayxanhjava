@@ -18,7 +18,7 @@ public class QuanLyNhapKho extends JPanel {
     private JComboBox<NhaCungCap> cboNhaCungCap;
     private JComboBox<String> cboSanPham;
     
-    private JButton btnThem, btnSua, btnXoa, btnLamMoi;
+    private JButton btnThem, btnSua, btnXoa, btnLamMoi,btnXuatExcel;
     
     private JTable tblLichSuNhap;
     private DefaultTableModel modelLichSu;
@@ -140,23 +140,44 @@ public class QuanLyNhapKho extends JPanel {
         pnlRight.add(pnlContent, BorderLayout.CENTER);
 
         // Khu vực Nút bấm
-        JPanel pnlButtons = new JPanel(new GridLayout(2, 2, 10, 10));
+        JPanel pnlButtons = new JPanel(new BorderLayout(0, 10));
         pnlButtons.setBackground(Color.WHITE);
         pnlButtons.setBorder(new EmptyBorder(10, 0, 0, 0));
-        pnlButtons.setPreferredSize(new Dimension(0, 80));
+        // Tăng chiều cao panel để chứa đủ các hàng
+        pnlButtons.setPreferredSize(new Dimension(0, 130));
 
-        btnThem = createBtn("Thêm", Color.decode("#4CAF50")); 
+        // 1. Panel chứa 4 nút trên (Thêm, Sửa, Xóa, Mới) -> Grid 2x2
+        JPanel pnlBasicOps = new JPanel(new GridLayout(2, 2, 10, 10));
+        pnlBasicOps.setBackground(Color.WHITE);
+
+        btnThem = createBtn("Thêm", Color.decode("#4CAF50"));
         btnSua = createBtn("Sửa", Color.decode("#FF9800"));
-        btnXoa = createBtn("Xóa", Color.decode("#F44336"));    
-        btnLamMoi = createBtn("Mới", COLOR_PRIMARY); 
+        btnXoa = createBtn("Xóa", Color.decode("#F44336"));
+        btnLamMoi = createBtn("Mới", COLOR_PRIMARY);
 
-        pnlButtons.add(btnThem);
-        pnlButtons.add(btnSua);
-        pnlButtons.add(btnXoa);
-        pnlButtons.add(btnLamMoi);
+        pnlBasicOps.add(btnThem);
+        pnlBasicOps.add(btnSua);
+        pnlBasicOps.add(btnXoa);
+        pnlBasicOps.add(btnLamMoi);
+
+        // 2. Panel chứa nút Xuất Excel (Dùng FlowLayout để căn giữa)
+        JPanel pnlExcel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+        pnlExcel.setBackground(Color.WHITE);
+
+        // Đặt tên nút là "Xuất Excel" (ngắn gọn) để khớp với Controller
+        btnXuatExcel = createBtn("Xuất Excel", Color.decode("#009688"));
+        
+        // SET KÍCH THƯỚC CỐ ĐỊNH: Bằng khoảng 1/2 chiều rộng panel để bằng các nút trên
+        // Panel phải rộng 350, trừ lề còn khoảng 330. Chia đôi trừ gap thì nút khoảng 160px.
+        btnXuatExcel.setPreferredSize(new Dimension(160, 40)); 
+
+        pnlExcel.add(btnXuatExcel);
+
+        // 3. Tổng hợp lại
+        pnlButtons.add(pnlBasicOps, BorderLayout.CENTER); // 4 nút trên
+        pnlButtons.add(pnlExcel, BorderLayout.SOUTH);     // Nút Excel ở dưới, căn giữa
         
         pnlRight.add(pnlButtons, BorderLayout.SOUTH);
-        
         add(pnlRight, BorderLayout.EAST);
     }
 
@@ -236,6 +257,7 @@ public class QuanLyNhapKho extends JPanel {
         btnXoa.addActionListener(ac);
         btnSua.addActionListener(ac); 
         btnLamMoi.addActionListener(ac);
+        btnXuatExcel.addActionListener(ac);
         cboSanPham.addActionListener(ac);
     }
     
