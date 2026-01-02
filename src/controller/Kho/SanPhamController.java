@@ -8,8 +8,8 @@ package controller.Kho;
  *
  * @author nguye
  */
-import domain.DanhMuc;
-import domain.SanPham;
+import domain.Kho.DanhMuc;
+import domain.Kho.SanPham;
 import model.Kho.DanhMucDAO;
 import model.Kho.SanPhamDAO;
 import view.viewKho.QuanLySanPham;
@@ -93,15 +93,31 @@ public class SanPhamController implements ActionListener {
                     break;
                 case "Xoa": 
                     String maXoa = view.getMaSPChon();
-                    if(JOptionPane.showConfirmDialog(view, "Xóa sản phẩm này?") == JOptionPane.YES_OPTION) {
-                        if(spDao.delete(maXoa) > 0) {
-                            JOptionPane.showMessageDialog(view, "Đã xóa!");
-                            loadData(); view.resetForm();
+//                    if(JOptionPane.showConfirmDialog(view, "Xóa sản phẩm này?") == JOptionPane.YES_OPTION) {
+//                        if(spDao.delete(maXoa) > 0) {
+//                            JOptionPane.showMessageDialog(view, "Đã xóa!");
+//                            loadData(); view.resetForm();
+//                        }
+//                    }
+                    if (maXoa == null) {
+                        JOptionPane.showMessageDialog(view, "Chưa chọn sản phẩm để xóa!");
+                        return;
+                    }
+                    if(JOptionPane.showConfirmDialog(view, "Bạn có chắc muốn xóa vĩnh viễn sản phẩm này khỏi CSDL?") == JOptionPane.YES_OPTION) {
+                        int result = spDao.delete(maXoa);
+                        if(result > 0) {
+                            JOptionPane.showMessageDialog(view, "Đã xóa thành công!");
+                            loadData(); 
+                            view.resetForm();
+                        } else {
+                            JOptionPane.showMessageDialog(view, "Xóa thất bại! Có thể sản phẩm đã tồn tại trong đơn hàng hoặc phiếu nhập.");
                         }
                     }
                     break;
                 case "LamMoi": 
-                    view.resetForm(); loadData(); 
+                    view.resetForm(); 
+                    loadDanhMuc();
+                    loadData(); 
                     break;
             }
         } catch (Exception ex) { ex.printStackTrace(); }

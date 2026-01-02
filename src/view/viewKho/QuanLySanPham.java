@@ -1,7 +1,7 @@
 package view.viewKho;
 
-import domain.DanhMuc;
-import domain.SanPham;
+import domain.Kho.DanhMuc;
+import domain.Kho.SanPham;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.net.URL;
@@ -30,16 +30,9 @@ public class QuanLySanPham extends JPanel {
     private JButton btnThem, btnSua, btnXoa, btnLamMoi;
 
     // --- COLORS & FONTS ---
-    private final Color COLOR_THEM = Color.decode("#4CAF50");
-    private final Color COLOR_SUA = Color.decode("#FFC107");
-    private final Color COLOR_XOA = Color.decode("#F44336");
-    private final Color COLOR_MOI = Color.decode("#2196F3");
-    private final Color COLOR_DISABLE = Color.decode("#E0E0E0");
-    private final Color COLOR_TEXT_DISABLE = Color.GRAY;
-    
+    private final Color COLOR_PRIMARY = Color.decode("#2196F3"); // Màu chủ đạo giống Nhân sự
     private final Font FONT_HEADER = new Font("Arial", Font.BOLD, 24);
-    private final Font FONT_LABEL = new Font("Arial", Font.BOLD, 13);
-    private final Font FONT_INPUT = new Font("Arial", Font.PLAIN, 14);
+    private final Font FONT_LABEL = new Font("Arial", Font.BOLD, 14);
 
     public QuanLySanPham() {
         initComponents();
@@ -47,231 +40,175 @@ public class QuanLySanPham extends JPanel {
     }
 
     private void initComponents() {
-        // 1. CẤU HÌNH LAYOUT TUYỆT ĐỐI TỔNG THỂ
-        setLayout(null);
+        // 1. SETUP LAYOUT CHÍNH (Giống QuanLyNhanVien)
+        setLayout(new BorderLayout(10, 10));
         setBackground(Color.WHITE);
-        
-        // Kích thước khả dụng ước tính từ MainForm: 
-        // Width = 1300 (Main) - 280 (Menu) = 1020px
-        // Height = ~700px
-        // Ta set kích thước tổng thể vừa vặn vùng này
-        int viewW = 1020; 
-        int viewH = 700;
-        setPreferredSize(new Dimension(viewW, viewH));
+        setBorder(new EmptyBorder(20, 20, 20, 20));
 
         // --- HEADER ---
         JLabel lblTitle = new JLabel("QUẢN LÝ SẢN PHẨM KHO");
         lblTitle.setFont(FONT_HEADER);
-        lblTitle.setForeground(COLOR_MOI);
+        lblTitle.setForeground(COLOR_PRIMARY);
         lblTitle.setHorizontalAlignment(SwingConstants.CENTER);
-        // Header rộng full chiều ngang
-        lblTitle.setBounds(0, 10, viewW, 40); 
-        add(lblTitle);
+        add(lblTitle, BorderLayout.NORTH);
 
-        // ========================================================
-        // TÍNH TOÁN KÍCH THƯỚC HAI KHU VỰC
-        // ========================================================
-        int margin = 20; // Lề
-        int gap = 20;    // Khoảng cách giữa Bảng và Form
-        
-        // Form bên phải cố định chiều rộng cho đẹp
-        int formW = 340; 
-        
-        // Bảng bên trái chiếm phần còn lại
-        int tableW = viewW - (margin * 2) - formW - gap; 
-        
-        int startY = 60; // Vị trí bắt đầu theo chiều dọc
-        int commonH = viewH - startY - 20; // Chiều cao chung (trừ đi lề dưới)
-
-        // ========================================================
-        // KHU VỰC TRÁI: BẢNG (TABLE)
-        // ========================================================
-        int tableX = margin;
-        
-        // Cấu hình Model Bảng
+        // --- CENTER: TABLE ---
         String[] columns = {"Mã SP", "Tên SP", "Danh mục", "Thương hiệu", "Tồn", "ĐVT", "Giá bán"};
         model = new DefaultTableModel(columns, 0) {
             public boolean isCellEditable(int row, int col) { return false; }
         };
         tblSanPham = new JTable(model);
-        styleTable(tblSanPham);
+        styleTable(tblSanPham); // Áp dụng style chuẩn
 
         JScrollPane scrTable = new JScrollPane(tblSanPham);
-        scrTable.setBounds(tableX, startY, tableW, commonH);
-        add(scrTable);
+        add(scrTable, BorderLayout.CENTER);
 
-        // ========================================================
-        // KHU VỰC PHẢI: FORM CÓ THANH CUỘN
-        // ========================================================
-        int formX = tableX + tableW + gap;
-        
+        // --- EAST: FORM INPUT ---
+        // Sử dụng Panel chứa form bên phải, rộng 350px
         JPanel pnlRight = new JPanel();
-        pnlRight.setLayout(null);
+        pnlRight.setLayout(new BorderLayout());
         pnlRight.setBackground(Color.WHITE);
-        pnlRight.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createLineBorder(Color.GRAY), 
-                "Thông tin chi tiết", 
-                TitledBorder.DEFAULT_JUSTIFICATION, 
-                TitledBorder.DEFAULT_POSITION, 
-                new Font("Arial", Font.BOLD, 14), 
-                COLOR_MOI
+        pnlRight.setPreferredSize(new Dimension(350, 0));
+        pnlRight.setBorder(BorderFactory.createCompoundBorder(
+                new LineBorder(Color.LIGHT_GRAY, 1, true),
+                new EmptyBorder(10, 10, 10, 10) // Padding trong
         ));
-        pnlRight.setBounds(formX, startY, formW, commonH);
-        add(pnlRight);
 
-        // --- 1. PANEL NỘI DUNG (SCROLL CONTENT) ---
-        JPanel pnlScrollContent = new JPanel();
-        pnlScrollContent.setLayout(null); 
-        pnlScrollContent.setBackground(Color.WHITE);
+        // Tiêu đề Form
+        JLabel lblFormTitle = new JLabel("THÔNG TIN CHI TIẾT", SwingConstants.CENTER);
+        lblFormTitle.setFont(new Font("Arial", Font.BOLD, 18));
+        lblFormTitle.setForeground(COLOR_PRIMARY);
+        lblFormTitle.setPreferredSize(new Dimension(0, 40));
+        pnlRight.add(lblFormTitle, BorderLayout.NORTH);
 
-        int xLb = 10, xTxt = 110; // Label rộng 100, Text bắt đầu từ 110
-        int wLb = 100, wTxt = 190; // Form rộng 340 -> trừ lề -> Text còn khoảng 190-200
-        int hRow = 30;            
-        int yStart = 10, yStep = 45; 
+        // Nội dung Form (Dùng BoxLayout trục Y)
+        JPanel pnlContent = new JPanel();
+        pnlContent.setLayout(new BoxLayout(pnlContent, BoxLayout.Y_AXIS));
+        pnlContent.setBackground(Color.WHITE);
 
-        // --- CÁC FIELD ---
-        // 1. Mã SP
-        pnlScrollContent.add(createLabel("Mã sản phẩm:", xLb, yStart, wLb, hRow));
-        txtMaSP = createTextField(xTxt, yStart, wTxt, hRow);
-        pnlScrollContent.add(txtMaSP);
-
-        // 2. Tên SP
-        yStart += yStep;
-        pnlScrollContent.add(createLabel("Tên sản phẩm:", xLb, yStart, wLb, hRow));
-        txtTenSP = createTextField(xTxt, yStart, wTxt, hRow);
-        pnlScrollContent.add(txtTenSP);
-
-        // 3. Danh mục
-        yStart += yStep;
-        pnlScrollContent.add(createLabel("Danh mục:", xLb, yStart, wLb, hRow));
+        // Thêm các trường vào pnlContent
+        txtMaSP = createField(pnlContent, "Mã sản phẩm:");
+        txtTenSP = createField(pnlContent, "Tên sản phẩm:");
+        
+        pnlContent.add(createLabel("Danh mục:"));
         cboDanhMuc = new JComboBox<>();
-        cboDanhMuc.setFont(FONT_INPUT);
-        cboDanhMuc.setBackground(Color.WHITE);
-        cboDanhMuc.setBounds(xTxt, yStart, wTxt, hRow);
-        pnlScrollContent.add(cboDanhMuc);
+        styleComponent(cboDanhMuc);
+        pnlContent.add(cboDanhMuc);
+        pnlContent.add(Box.createVerticalStrut(10));
 
-        // 4. Thương hiệu
-        yStart += yStep;
-        pnlScrollContent.add(createLabel("Thương hiệu:", xLb, yStart, wLb, hRow));
-        txtThuongHieu = createTextField(xTxt, yStart, wTxt, hRow);
-        pnlScrollContent.add(txtThuongHieu);
+        txtThuongHieu = createField(pnlContent, "Thương hiệu:");
 
-        // 5. ĐVT & Trạng thái
-        yStart += yStep;
-        pnlScrollContent.add(createLabel("ĐVT / T.Thái:", xLb, yStart, wLb, hRow));
+        // Hàng ĐVT và Trạng thái (chia đôi)
+        JPanel pnlRow = new JPanel(new GridLayout(1, 2, 5, 0));
+        pnlRow.setBackground(Color.WHITE);
+        pnlRow.setMaximumSize(new Dimension(Integer.MAX_VALUE, 55));
+        pnlRow.setAlignmentX(Component.LEFT_ALIGNMENT);
         
+        JPanel p1 = new JPanel(new BorderLayout()); p1.setBackground(Color.WHITE);
+        p1.add(createLabel("Đơn vị tính:"), BorderLayout.NORTH);
         cboDonViTinh = new JComboBox<>(new String[]{"Cái", "Chiếc", "Bộ", "Hộp", "Kg"});
-        cboDonViTinh.setFont(FONT_INPUT);
-        cboDonViTinh.setBackground(Color.WHITE);
-        cboDonViTinh.setBounds(xTxt, yStart, 90, hRow); // Chia đôi chiều rộng
-        pnlScrollContent.add(cboDonViTinh);
+        styleComponent(cboDonViTinh);
+        p1.add(cboDonViTinh, BorderLayout.CENTER);
         
+        JPanel p2 = new JPanel(new BorderLayout()); p2.setBackground(Color.WHITE);
+        p2.add(createLabel("Trạng thái:"), BorderLayout.NORTH);
         cboTrangThaiHang = new JComboBox<>(new String[]{"MOI", "CU", "TRUNG_BAY"});
-        cboTrangThaiHang.setFont(FONT_INPUT);
-        cboTrangThaiHang.setBackground(Color.WHITE);
-        cboTrangThaiHang.setBounds(xTxt + 95, yStart, 95, hRow);
-        pnlScrollContent.add(cboTrangThaiHang);
+        styleComponent(cboTrangThaiHang);
+        p2.add(cboTrangThaiHang, BorderLayout.CENTER);
 
-        // 6. Giá nhập
-        yStart += yStep;
-        pnlScrollContent.add(createLabel("Giá nhập:", xLb, yStart, wLb, hRow));
-        txtGiaNhap = createTextField(xTxt, yStart, wTxt, hRow);
-        pnlScrollContent.add(txtGiaNhap);
+        pnlRow.add(p1);
+        pnlRow.add(p2);
+        pnlContent.add(pnlRow);
+        pnlContent.add(Box.createVerticalStrut(10));
 
-        // 7. Giá bán
-        yStart += yStep;
-        pnlScrollContent.add(createLabel("Giá bán:", xLb, yStart, wLb, hRow));
-        txtGiaBan = createTextField(xTxt, yStart, wTxt, hRow);
-        pnlScrollContent.add(txtGiaBan);
+        txtGiaNhap = createField(pnlContent, "Giá nhập:");
+        txtGiaBan = createField(pnlContent, "Giá bán:");
+        txtBaoHanh = createField(pnlContent, "Bảo hành (tháng):");
+        txtHinhAnh = createField(pnlContent, "Link Ảnh:");
 
-        // 8. Bảo hành
-        yStart += yStep;
-        pnlScrollContent.add(createLabel("Bảo hành (tháng):", xLb, yStart, wLb + 10, hRow));
-        txtBaoHanh = createTextField(xTxt, yStart, wTxt, hRow);
-        pnlScrollContent.add(txtBaoHanh);
-
-        // 9. Link Ảnh
-        yStart += yStep;
-        pnlScrollContent.add(createLabel("Link Ảnh:", xLb, yStart, wLb, hRow));
-        txtHinhAnh = createTextField(xTxt, yStart, wTxt, hRow);
-        pnlScrollContent.add(txtHinhAnh);
-
-        // 10. Preview Ảnh
-        int imgSize = 90;
+        // Preview Ảnh
         lblAnhPreview = new JLabel("Chưa có ảnh", SwingConstants.CENTER);
+        lblAnhPreview.setPreferredSize(new Dimension(90, 90));
+        lblAnhPreview.setMaximumSize(new Dimension(90, 90));
         lblAnhPreview.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
-        // Căn giữa ảnh trong vùng textfield
-        lblAnhPreview.setBounds(xTxt + 50, yStart + 35, imgSize, imgSize);
-        pnlScrollContent.add(lblAnhPreview);
-
-        // 11. Mô tả
-        yStart += yStep + imgSize + 10; 
-        pnlScrollContent.add(createLabel("Mô tả:", xLb, yStart, wLb, hRow));
+        lblAnhPreview.setAlignmentX(Component.CENTER_ALIGNMENT);
         
-        txtMoTa = new JTextArea();
-        txtMoTa.setFont(FONT_INPUT);
+        JPanel pnlImg = new JPanel(); 
+        pnlImg.setBackground(Color.WHITE);
+        pnlImg.add(lblAnhPreview);
+        pnlImg.setAlignmentX(Component.LEFT_ALIGNMENT);
+        pnlContent.add(pnlImg);
+
+        // Mô tả
+        pnlContent.add(createLabel("Mô tả:"));
+        txtMoTa = new JTextArea(3, 20);
+        txtMoTa.setFont(new Font("Arial", Font.PLAIN, 14));
         txtMoTa.setLineWrap(true);
         txtMoTa.setWrapStyleWord(true);
-        txtMoTa.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
-        
         JScrollPane scrMoTa = new JScrollPane(txtMoTa);
-        scrMoTa.setBounds(xTxt, yStart, wTxt, 60);
-        pnlScrollContent.add(scrMoTa);
+        scrMoTa.setAlignmentX(Component.LEFT_ALIGNMENT);
+        pnlContent.add(scrMoTa);
 
-        // --- SET CHIỀU CAO CONTENT ---
-        int contentHeight = yStart + 70; 
-        pnlScrollContent.setPreferredSize(new Dimension(formW - 40, contentHeight));
+        // Do form dài, ta bỏ pnlContent vào ScrollPane của pnlRight
+        JScrollPane scrInput = new JScrollPane(pnlContent);
+        scrInput.setBorder(null);
+        scrInput.getVerticalScrollBar().setUnitIncrement(16);
+        pnlRight.add(scrInput, BorderLayout.CENTER);
 
-        // --- 2. SCROLLPANE CHỨA CONTENT ---
-        // Chiều cao ScrollPane = Chiều cao Form - Chiều cao nút - Padding
-        int scrollH = commonH - 80; 
-        JScrollPane scrollPane = new JScrollPane(pnlScrollContent);
-        scrollPane.setBounds(10, 25, formW - 20, scrollH); 
-        scrollPane.setBorder(null);
-        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
-        pnlRight.add(scrollPane);
+        // Khu vực Nút bấm (Phía dưới Form)
+        JPanel pnlButtons = new JPanel(new GridLayout(2, 2, 10, 10));
+        pnlButtons.setBackground(Color.WHITE);
+        pnlButtons.setBorder(new EmptyBorder(10, 0, 0, 0));
+        pnlButtons.setPreferredSize(new Dimension(0, 80));
 
-        // --- 3. KHU VỰC NÚT BẤM ---
-        int btnW = 70; // Nút nhỏ hơn chút để vừa formW 340
-        int btnH = 35;
-        int btnGap = 8;
-        int btnY = commonH - 45; 
-        int startBtnX = 15;
+        btnThem = createButton("Them", "Thêm", Color.decode("#4CAF50"));
+        btnSua = createButton("Sua", "Sửa", Color.decode("#FFC107"));
+        btnXoa = createButton("Xoa", "Xóa", Color.decode("#F44336"));
+        btnLamMoi = createButton("LamMoi", "Làm mới", COLOR_PRIMARY);
 
-        btnThem = createButton("Them", "Thêm", COLOR_THEM, startBtnX, btnY, btnW, btnH);
-        pnlRight.add(btnThem);
+        pnlButtons.add(btnThem);
+        pnlButtons.add(btnSua);
+        pnlButtons.add(btnXoa);
+        pnlButtons.add(btnLamMoi);
 
-        btnSua = createButton("Sua", "Sửa", COLOR_SUA, startBtnX + btnW + btnGap, btnY, btnW, btnH);
-        pnlRight.add(btnSua);
+        pnlRight.add(pnlButtons, BorderLayout.SOUTH);
 
-        btnXoa = createButton("Xoa", "Xóa", COLOR_XOA, startBtnX + (btnW + btnGap)*2, btnY, btnW, btnH);
-        pnlRight.add(btnXoa);
-
-        btnLamMoi = createButton("LamMoi", "Mới", COLOR_MOI, startBtnX + (btnW + btnGap)*3, btnY, 65, btnH);
-        pnlRight.add(btnLamMoi);
+        add(pnlRight, BorderLayout.EAST);
     }
 
     // ========================================================================
-    // HELPER METHODS (Rút gọn code cho sạch)
+    // HELPER METHODS (STYLE GIỐNG NHÂN SỰ)
     // ========================================================================
 
-    private JLabel createLabel(String text, int x, int y, int w, int h) {
-        JLabel l = new JLabel(text);
-        l.setFont(FONT_LABEL);
-        l.setForeground(Color.DARK_GRAY);
-        l.setBounds(x, y, w, h);
-        return l;
+    private JTextField createField(JPanel panel, String labelText) {
+        panel.add(createLabel(labelText));
+        JTextField txt = new JTextField();
+        styleComponent(txt);
+        panel.add(txt);
+        panel.add(Box.createVerticalStrut(10));
+        return txt;
     }
 
-    private JTextField createTextField(int x, int y, int w, int h) {
-        JTextField t = new JTextField();
-        t.setFont(FONT_INPUT);
-        t.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
-        t.setBounds(x, y, w, h);
-        return t;
+    private JLabel createLabel(String text) {
+        JLabel lbl = new JLabel(text);
+        lbl.setFont(FONT_LABEL);
+        lbl.setForeground(Color.BLACK);
+        lbl.setAlignmentX(Component.LEFT_ALIGNMENT);
+        return lbl;
     }
 
-    private JButton createButton(String cmd, String text, Color bg, int x, int y, int w, int h) {
+    private void styleComponent(JComponent comp) {
+        comp.setFont(new Font("Arial", Font.PLAIN, 14));
+        comp.setBackground(Color.WHITE);
+        comp.setMaximumSize(new Dimension(Integer.MAX_VALUE, 35));
+        comp.setPreferredSize(new Dimension(100, 35));
+        comp.setAlignmentX(Component.LEFT_ALIGNMENT);
+        if (comp instanceof JTextField) {
+            ((JTextField) comp).setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
+        }
+    }
+
+    private JButton createButton(String cmd, String text, Color bg) {
         JButton b = new JButton(text);
         b.setActionCommand(cmd);
         b.setBackground(bg);
@@ -279,9 +216,7 @@ public class QuanLySanPham extends JPanel {
         b.setFont(new Font("Arial", Font.BOLD, 13));
         b.setFocusPainted(false);
         b.setBorderPainted(false);
-        b.setOpaque(true);
         b.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        b.setBounds(x, y, w, h);
         return b;
     }
 
@@ -290,6 +225,8 @@ public class QuanLySanPham extends JPanel {
         table.setFont(new Font("Arial", Font.PLAIN, 14));
         table.setShowGrid(true);
         table.setGridColor(Color.LIGHT_GRAY);
+        table.setSelectionBackground(Color.decode("#BBDEFB"));
+        table.setSelectionForeground(Color.BLACK);
         
         JTableHeader header = table.getTableHeader();
         header.setPreferredSize(new Dimension(header.getPreferredSize().width, 40));
@@ -297,45 +234,37 @@ public class QuanLySanPham extends JPanel {
             @Override
             public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
                 JLabel label = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-                label.setFont(new Font("Arial", Font.BOLD, 14));
-                label.setBackground(COLOR_MOI);
+                label.setFont(new Font("Arial", Font.BOLD, 15));
+                label.setBackground(COLOR_PRIMARY); // Màu xanh dương đồng bộ
                 label.setForeground(Color.WHITE);
                 label.setHorizontalAlignment(JLabel.CENTER);
-                label.setOpaque(true); 
-                
-                // --- THÊM ĐƯỜNG KẺ TRẮNG NGĂN CÁCH CÁC CỘT ---
-                // Tạo viền trắng 1px ở bên phải và bên dưới mỗi ô tiêu đề
-                label.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 1, Color.WHITE));
-                
+                label.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, Color.WHITE));
                 return label;
             }
         });
-
-        // Căn phải cho cột Tiền & Tồn kho
+        
         DefaultTableCellRenderer rightRenderer = new DefaultTableCellRenderer();
         rightRenderer.setHorizontalAlignment(JLabel.RIGHT);
         table.getColumnModel().getColumn(4).setCellRenderer(rightRenderer);
         table.getColumnModel().getColumn(6).setCellRenderer(rightRenderer);
         
-        // Chỉnh độ rộng cột cho đẹp
-        table.getColumnModel().getColumn(0).setPreferredWidth(60);  // Mã
-        table.getColumnModel().getColumn(1).setPreferredWidth(150); // Tên
-        table.getColumnModel().getColumn(2).setPreferredWidth(100); // Danh mục
+        table.getColumnModel().getColumn(0).setPreferredWidth(60);
+        table.getColumnModel().getColumn(1).setPreferredWidth(150);
+        table.getColumnModel().getColumn(2).setPreferredWidth(100);
     }
 
     // ========================================================================
-    // LOGIC METHODS (GIỮ NGUYÊN)
+    // LOGIC METHODS (GIỮ NGUYÊN NHƯ CŨ)
     // ========================================================================
-
     public void setTrangThaiNut(boolean isSelect) {
         btnThem.setEnabled(!isSelect);
-        btnThem.setBackground(!isSelect ? COLOR_THEM : COLOR_DISABLE);
+        btnThem.setBackground(!isSelect ? Color.decode("#4CAF50") : Color.LIGHT_GRAY);
         
         btnSua.setEnabled(isSelect);
-        btnSua.setBackground(isSelect ? COLOR_SUA : COLOR_DISABLE);
+        btnSua.setBackground(isSelect ? Color.decode("#FFC107") : Color.LIGHT_GRAY);
         
         btnXoa.setEnabled(isSelect);
-        btnXoa.setBackground(isSelect ? COLOR_XOA : COLOR_DISABLE);
+        btnXoa.setBackground(isSelect ? Color.decode("#F44336") : Color.LIGHT_GRAY);
         
         txtMaSP.setEnabled(!isSelect); 
     }

@@ -2,7 +2,7 @@
 package view.viewThongKe;
 import controller.ThongKe.ThongKeController;
 import model.Kho.DanhMucDAO;
-import domain.DanhMuc;
+import domain.Kho.DanhMuc;
 import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.table.DefaultTableCellRenderer;

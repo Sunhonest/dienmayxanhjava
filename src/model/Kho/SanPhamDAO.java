@@ -8,7 +8,7 @@ package model.Kho;
  *
  * @author nguye
  */
-import domain.SanPham;
+import domain.Kho.SanPham;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -84,16 +84,36 @@ public class SanPhamDAO {
         } catch (Exception e) { e.printStackTrace(); return 0; }
     }
 
-    // Xóa mềm: Chuyển trạng thái sang NGUNG_KINH_DOANH
+//    // Xóa mềm: Chuyển trạng thái sang NGUNG_KINH_DOANH
+//    public int delete(String maSP) {
+//        String sql = "UPDATE sanpham SET TrangThaiKinhDoanh = 'NGUNG_KINH_DOANH' WHERE MaSP=?";
+//        try (Connection cons = ConnectDB.getConnection();
+//             PreparedStatement ps = cons.prepareStatement(sql)) {
+//            ps.setString(1, maSP);
+//            return ps.executeUpdate();
+//        } catch (Exception e) { e.printStackTrace(); return 0; }
+//    }
+
+    // Xóa cứng: Xóa hẳn dữ liệu khỏi bảng Database
     public int delete(String maSP) {
-        String sql = "UPDATE sanpham SET TrangThaiKinhDoanh = 'NGUNG_KINH_DOANH' WHERE MaSP=?";
+        // Thay đổi câu lệnh SQL từ UPDATE sang DELETE
+        String sql = "DELETE FROM sanpham WHERE MaSP=?";
+        
         try (Connection cons = ConnectDB.getConnection();
              PreparedStatement ps = cons.prepareStatement(sql)) {
+            
             ps.setString(1, maSP);
+            
             return ps.executeUpdate();
-        } catch (Exception e) { e.printStackTrace(); return 0; }
+            
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        }
     }
-
     public boolean checkTrungMa(String maSP) {
         try (Connection cons = ConnectDB.getConnection();
              PreparedStatement ps = cons.prepareStatement("SELECT MaSP FROM sanpham WHERE MaSP=?")) {

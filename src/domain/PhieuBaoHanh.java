@@ -13,7 +13,8 @@ import java.util.Date;
 
 public class PhieuBaoHanh {
     private String maPhieu;
-    private String maHoaDon;      // Foreign Key -> hoadon
+    private String maHoaDon;   
+    private String tenSP;// Foreign Key -> hoadon
     private String maSP;          // Foreign Key -> sanpham
     private String soSerial;
     private String tenKhachHang;
@@ -74,4 +75,14 @@ public class PhieuBaoHanh {
     public String toString() {
         return maPhieu + " - " + tenKhachHang;
     }
+
+    public String getTenSP() {
+        return tenSP; // Trả về biến tenSP
+    }
+
+    // 3. Kiểm tra luôn hàm setTenSP (nếu có)
+    public void setTenSP(String tenSP) {
+        this.tenSP = tenSP;
+    }
 }
+    
