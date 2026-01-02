@@ -25,19 +25,22 @@ public class QLHDController implements ActionListener {
     private final HoaDonDAO dao;
 
     public QLHDController(QuanLyHoaDon view) {
-        this.view = view;
-        this.dao = new HoaDonDAO();
+    this.view = view;
+    this.dao = new HoaDonDAO();
 
-        this.view.addActionListener(this);           
-        this.view.getTable().addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                view.fillFormTuBang();
-            }
-        });
+    this.view.addActionListener(this);
+    this.view.getTable().addMouseListener(new MouseAdapter() {
+        @Override
+        public void mouseClicked(MouseEvent e) {
+            view.fillFormTuBang();
+        }
+    });
 
-        loadData();
+    loadComboDonHang();      // <<< THÊM
+    bindDonHangChangeEvent();// <<< THÊM
+    loadData();
     }
+
 
     private void loadData() {
         DefaultTableModel model = view.getModel();
@@ -71,6 +74,7 @@ public class QLHDController implements ActionListener {
                 case "Xoa": xuLyXoa(); break;
                 case "LamMoi":
                     view.resetForm();
+                    loadComboDonHang();
                     loadData();
                     break;
             }
@@ -121,4 +125,35 @@ public class QLHDController implements ActionListener {
             }
         }
     }
+    private void loadComboDonHang() {
+    view.getCboMaDonHang().removeAllItems();
+    for (String maDH : dao.getAllMaDonHang()) {
+        view.getCboMaDonHang().addItem(maDH);
+    }
+
+    // sau khi đổ xong, nếu có item thì fill luôn item đầu
+    if (view.getCboMaDonHang().getItemCount() > 0) {
+        String first = String.valueOf(view.getCboMaDonHang().getItemAt(0));
+        fillFromDonHang(first);
+    }
+}
+
+    private void bindDonHangChangeEvent() {
+        view.getCboMaDonHang().addItemListener(e -> {
+            if (e.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
+                String maDonHang = String.valueOf(e.getItem());
+                fillFromDonHang(maDonHang);
+            }
+        });
+    }
+
+    private void fillFromDonHang(String maDonHang) {
+        HoaDonDAO.DonHangInfo info = dao.getDonHangInfo(maDonHang);
+        if (info != null) {
+            view.setDonHangInfoToForm(info.maKH, info.tongTienHang, info.tienGiam, info.maNV);
+        } else {
+            view.setDonHangInfoToForm("", 0f, 0f, "");
+        }
+    }
+
 }

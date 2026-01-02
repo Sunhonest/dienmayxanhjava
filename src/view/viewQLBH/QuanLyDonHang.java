@@ -45,7 +45,9 @@ public class QuanLyDonHang extends JPanel{
     private DefaultTableModel model;
 
     // Fields
-    private JTextField txtMaKH, txtMaDonHang, txtVoucherID, txtMaNV;
+    private JTextField txtMaDonHang;
+    private JComboBox<String> cboMaKH, cboMaNV, cboVoucherID;
+
     private JSpinner spNgayTao;
     private JFormattedTextField txtTongTien, txtTienGiam;
     private JComboBox<String> cboTrangThai;
@@ -54,24 +56,24 @@ public class QuanLyDonHang extends JPanel{
     private JButton btnThem, btnSua, btnXoa, btnLamMoi;
 
     public QuanLyDonHang() {
-    setLayout(new BorderLayout());
-    JPanel root = new JPanel(new BorderLayout(0, 10));
-    root.setBorder(new EmptyBorder(12, 12, 12, 12));
+        setLayout(new BorderLayout());
+        JPanel root = new JPanel(new BorderLayout(0, 10));
+        root.setBorder(new EmptyBorder(12, 12, 12, 12));
 
-    JLabel lblTitle = new JLabel("QUẢN LÝ ĐƠN HÀNG", SwingConstants.CENTER);
-    lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 26));
-    lblTitle.setForeground(new Color(0, 140, 220));
-    root.add(lblTitle, BorderLayout.NORTH);
+        JLabel lblTitle = new JLabel("QUẢN LÝ ĐƠN HÀNG", SwingConstants.CENTER);
+        lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 26));
+        lblTitle.setForeground(new Color(0, 140, 220));
+        root.add(lblTitle, BorderLayout.NORTH);
 
-    JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, createTablePanel(), createDetailPanel());
-    splitPane.setResizeWeight(0.72);
-    splitPane.setDividerSize(6);
-    root.add(splitPane, BorderLayout.CENTER);
+        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, createTablePanel(), createDetailPanel());
+        splitPane.setResizeWeight(0.72);
+        splitPane.setDividerSize(6);
+        root.add(splitPane, BorderLayout.CENTER);
 
-    add(root, BorderLayout.CENTER);
+        add(root, BorderLayout.CENTER);
 
-    setButtonStateDefault();
-}
+        setButtonStateDefault();
+    }
 
 
     private JPanel createTablePanel() {
@@ -133,10 +135,12 @@ public class QuanLyDonHang extends JPanel{
         gbc.insets = new Insets(8, 0, 8, 0);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        txtMaKH = new JTextField();
         txtMaDonHang = new JTextField();
-        txtVoucherID = new JTextField();
-        txtMaNV = new JTextField();
+        cboMaKH = new JComboBox<>();
+        cboMaNV = new JComboBox<>();
+        cboVoucherID = new JComboBox<>();
+        cboVoucherID.addItem("0");
+
 
         spNgayTao = new JSpinner(new SpinnerDateModel(new Date(), null, null, java.util.Calendar.MINUTE));
         JSpinner.DateEditor editor = new JSpinner.DateEditor(spNgayTao, "yyyy-MM-dd HH:mm:ss");
@@ -154,14 +158,15 @@ public class QuanLyDonHang extends JPanel{
         });
 
         int r = 0;
-        r = addRow(form, gbc, r, "Mã KH:", txtMaKH);
+        r = addRow(form, gbc, r, "Mã KH:", cboMaKH);
         r = addRow(form, gbc, r, "Mã đơn hàng:", txtMaDonHang);
         r = addRow(form, gbc, r, "Ngày tạo:", spNgayTao);
         r = addRow(form, gbc, r, "Tổng tiền:", txtTongTien);
         r = addRow(form, gbc, r, "Tiền giảm:", txtTienGiam);
-        r = addRow(form, gbc, r, "VoucherID:", txtVoucherID);
+        r = addRow(form, gbc, r, "VoucherID:", cboVoucherID);
         r = addRow(form, gbc, r, "Trạng thái:", cboTrangThai);
-        r = addRow(form, gbc, r, "Mã NV:", txtMaNV);
+        r = addRow(form, gbc, r, "Mã NV:", cboMaNV);
+
 
         wrap.add(form, BorderLayout.CENTER);
 
@@ -243,37 +248,49 @@ public class QuanLyDonHang extends JPanel{
         int row = tblDonHang.getSelectedRow();
         if (row < 0) return;
 
-        txtMaKH.setText(valueAt(row, 0));
+        cboMaKH.setSelectedItem(valueAt(row, 0));
+
         txtMaDonHang.setText(valueAt(row, 1));
         txtMaDonHang.setEnabled(false);
 
-        // NgayTao đang hiển thị dạng String -> giữ nguyên: set về hiện tại để không crash
         spNgayTao.setValue(new Date());
 
         txtTongTien.setText(valueAt(row, 3));
         txtTienGiam.setText(valueAt(row, 4));
-        txtVoucherID.setText(valueAt(row, 5));
+
+        String v = valueAt(row, 5);
+        cboVoucherID.setSelectedItem((v == null || v.isBlank()) ? "0" : v);
+
         cboTrangThai.setSelectedItem(valueAt(row, 6));
-        txtMaNV.setText(valueAt(row, 7));
+
+        cboMaNV.setSelectedItem(valueAt(row, 7));
 
         btnSua.setEnabled(true);
         btnXoa.setEnabled(true);
     }
 
     public void resetForm() {
-        txtMaKH.setText("");
+        // combobox về item đầu (nếu có)
+        if (cboMaKH.getItemCount() > 0) cboMaKH.setSelectedIndex(0);
+        if (cboMaNV.getItemCount() > 0) cboMaNV.setSelectedIndex(0);
+
+        // voucher về 0
+        cboVoucherID.setSelectedItem("0");
+
         txtMaDonHang.setText("");
         txtMaDonHang.setEnabled(true);
+
         spNgayTao.setValue(new Date());
+
         txtTongTien.setValue(0.00);
         txtTienGiam.setValue(0.00);
-        txtVoucherID.setText("");
+
         cboTrangThai.setSelectedIndex(0);
-        txtMaNV.setText("");
 
         tblDonHang.clearSelection();
         setButtonStateDefault();
     }
+
 
     public String getMaDonHangDangChon() {
         int row = tblDonHang.getSelectedRow();
@@ -282,24 +299,32 @@ public class QuanLyDonHang extends JPanel{
     }
 
     public QLDH getDonHangFromInput() {
-    QLDH dh = new QLDH();
-    dh.setMaKH(txtMaKH.getText().trim());
-    dh.setMaDonHang(txtMaDonHang.getText().trim());
-    txtMaDonHang.setEnabled(false);
-    dh.setNgayTao((Date) spNgayTao.getValue());
+        QLDH dh = new QLDH();
 
-    float tong = Float.parseFloat(normalizeMoney(txtTongTien.getText()));
-    float giam = Float.parseFloat(normalizeMoney(txtTienGiam.getText()));
-    dh.setTongTien(tong);
-    dh.setTienGiam(giam);
+        // ComboBox
+        dh.setMaKH(String.valueOf(cboMaKH.getSelectedItem()));
+        dh.setMaNV(String.valueOf(cboMaNV.getSelectedItem()));
 
-    String v = txtVoucherID.getText().trim();
-    dh.setVoucherID(v.isEmpty() ? 0 : Integer.parseInt(v));
+        // TextField
+        dh.setMaDonHang(txtMaDonHang.getText().trim());
+        dh.setNgayTao((Date) spNgayTao.getValue());
 
-    dh.setTrangThai(String.valueOf(cboTrangThai.getSelectedItem()));
-    dh.setMaNV(txtMaNV.getText().trim());
-    return dh;
-}
+        float tong = Float.parseFloat(normalizeMoney(txtTongTien.getText()));
+        float giam = Float.parseFloat(normalizeMoney(txtTienGiam.getText()));
+        dh.setTongTien(tong);
+        dh.setTienGiam(giam);
+
+        // Voucher
+        String v = String.valueOf(cboVoucherID.getSelectedItem());
+        dh.setVoucherID(v == null || v.isBlank() ? 0 : Integer.parseInt(v));
+
+        dh.setTrangThai(String.valueOf(cboTrangThai.getSelectedItem()));
+        return dh;
+    }
+    public JComboBox<String> getCboMaKH() { return cboMaKH; }
+    public JComboBox<String> getCboMaNV() { return cboMaNV; }
+    public JComboBox<String> getCboVoucherID() { return cboVoucherID; }
+
 
 
     // ====== Helpers ======
@@ -319,6 +344,7 @@ public class QuanLyDonHang extends JPanel{
         btnSua.setEnabled(false);
         btnXoa.setEnabled(false);
     }
+    
     
 }
 

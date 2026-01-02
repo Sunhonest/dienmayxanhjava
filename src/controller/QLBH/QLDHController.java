@@ -11,6 +11,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.text.DecimalFormat;
 import java.util.List;
+import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import model.QLBH.DonHangDAO;
@@ -36,8 +37,9 @@ public class QLDHController implements ActionListener {
                 view.fillFormTuBang();
             }
         });
-
+        loadComboBoxData();
         loadData();
+        
     }
 
     private void loadData() {
@@ -138,4 +140,26 @@ public class QLDHController implements ActionListener {
             }
         }
     }
+
+    private void loadComboBoxData() {
+        // MaKH
+        view.getCboMaKH().removeAllItems();
+        for (String maKH : dao.getAllMaKH()) {
+            view.getCboMaKH().addItem(maKH);
+        }
+
+        // MaNV
+        view.getCboMaNV().removeAllItems();
+        for (String maNV : dao.getAllMaNV()) {
+            view.getCboMaNV().addItem(maNV);
+        }
+
+        // Voucher
+        view.getCboVoucherID().removeAllItems();
+        view.getCboVoucherID().addItem("0"); // không dùng voucher
+        for (String vid : dao.getAllVoucherIDActive()) {
+            view.getCboVoucherID().addItem(vid);
+        }
+    }
+
 }

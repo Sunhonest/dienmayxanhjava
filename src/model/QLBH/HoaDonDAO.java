@@ -158,4 +158,47 @@ public class HoaDonDAO {
         }
         return 0;
     }
+        // ================== COMBOBOX DONHANG ==================
+    public List<String> getAllMaDonHang() {
+        List<String> list = new ArrayList<>();
+        String sql = "SELECT MaDonHang FROM donhang ORDER BY NgayTao DESC";
+        try (Connection con = ConnectDB.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) list.add(rs.getString(1));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    public static class DonHangInfo {
+        public String maKH;
+        public float tongTienHang;
+        public float tienGiam;
+        public String maNV;
+    }
+
+    public DonHangInfo getDonHangInfo(String maDonHang) {
+        String sql = "SELECT MaKH, TongTien, TienGiam, MaNV FROM donhang WHERE MaDonHang = ? LIMIT 1";
+        try (Connection con = ConnectDB.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, maDonHang);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    DonHangInfo info = new DonHangInfo();
+                    info.maKH = rs.getString("MaKH");
+                    info.tongTienHang = rs.getFloat("TongTien");
+                    info.tienGiam = rs.getFloat("TienGiam");
+                    info.maNV = rs.getString("MaNV");
+                    return info;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 }

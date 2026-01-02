@@ -29,10 +29,11 @@ import controller.QLBH.QLDHController;
 import controller.NhanSu.NhanVienController;
 import controller.NhanSu.TaiKhoanController;
 import controller.NhanSu.ChucVuController;
-import controller.NhanSu.DangNhapController; // QUAN TRỌNG: Để gắn não cho form đăng nhập
+import controller.NhanSu.DangNhapController; 
+
+
 //<<<<<<< HEAD
 import controller.QLBH.QLHDController;
-import controller.QLBH.ThongKeController;
 //=======
 // Thêm 3 dòng này vào danh sách import
 import controller.BaoHanh.BaoHanhController;
@@ -40,13 +41,14 @@ import controller.BaoHanh.TraCuuController;
 import controller.BaoHanh.TraMayController;
 import controller.Kho.DanhMucController;
 import controller.Kho.NhaCungCapController;
+import controller.QLBH.KhachHangController;
 import view.viewKho.QuanLyDanhMuc;
 import view.viewKho.QuanLyNhaCungCap;
 //>>>>>>> stash
 import view.viewKho.QuanLySanPham;
 //<<<<<<< HEAD
 import view.viewQLBH.QuanLyHoaDon;
-import view.viewQLBH.ThongkeQLBH;
+import view.viewQLBH.QuanLyKhachHang;
 //=======
  
 
@@ -138,7 +140,7 @@ public class MainForm extends JFrame {
         
         addMenuItem("Bán hàng (POS)", 
                 "https://img.icons8.com/fluency/48/pos-terminal.png", 
-                new String[]{"Quản lý đơn hàng", "Quản lý hóa đơn","Thống kê"});
+                new String[]{"Quản lý khách hàng","Quản lý đơn hàng", "Quản lý hóa đơn"});
         
         addMenuItem("Dịch vụ bảo hành", 
                 "https://img.icons8.com/fluency/48/maintenance.png",
@@ -201,9 +203,11 @@ public class MainForm extends JFrame {
         new QLHDController(viewHD);             
         pnlCards.add(viewHD, "Quản lý hóa đơn");
         
-        ThongkeQLBH view = new ThongkeQLBH(); 
-        new ThongKeController(view);             
-        pnlCards.add(view, "Thống kê");
+        QuanLyKhachHang viewKH = new QuanLyKhachHang();
+        new KhachHangController(viewKH);
+        pnlCards.add(viewKH, "Quản lý khách hàng");
+
+        
         
 
         // ... (Code các phần khác giữ nguyên)

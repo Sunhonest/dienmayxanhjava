@@ -48,12 +48,15 @@ public class QuanLyHoaDon extends JPanel {
     private JTable tblHoaDon;
     private DefaultTableModel model;
 
-    private JTextField txtMaHoaDon, txtMaDonHang, txtMaKH, txtMaNVLap;
+    private JTextField txtMaHoaDon, txtMaKH, txtMaNVLap;
+    private JComboBox<String> cboMaDonHang; 
     private JSpinner spNgayLap;
     private JFormattedTextField txtTongTienHang, txtTienGiam, txtTongThanhToan;
     private JComboBox<String> cboPhuongThucTT, cboTrangThai;
 
-    private JButton btnThem, btnSua, btnXoa, btnLamMoi;
+
+    private JButton btnThem, btnSua, btnXoa, btnLamMoi, btnNhapExcel, btnXuatExcel;
+
 
     public QuanLyHoaDon() {
         setLayout(new BorderLayout());
@@ -167,9 +170,12 @@ public class QuanLyHoaDon extends JPanel {
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
         txtMaHoaDon = new JTextField();
-        txtMaDonHang = new JTextField();
+        cboMaDonHang = new JComboBox<>();  // <<< NEW
         txtMaKH = new JTextField();
         txtMaNVLap = new JTextField();
+
+        txtMaKH.setEditable(false);
+        txtMaNVLap.setEditable(false);
 
         spNgayLap = new JSpinner(new SpinnerDateModel(new Date(), null, null, Calendar.MINUTE));
         JSpinner.DateEditor editor = new JSpinner.DateEditor(spNgayLap, "yyyy-MM-dd HH:mm:ss");
@@ -184,6 +190,10 @@ public class QuanLyHoaDon extends JPanel {
         txtTienGiam.setValue(0.00);
         txtTongThanhToan.setValue(0.00);
 
+        txtTongTienHang.setEditable(false);
+        txtTienGiam.setEditable(false);
+        txtTongThanhToan.setEditable(false);
+
         cboPhuongThucTT = new JComboBox<>(new String[]{
                 "TIEN_MAT", "CHUYEN_KHOAN", "THE"
         });
@@ -194,7 +204,7 @@ public class QuanLyHoaDon extends JPanel {
 
         int r = 0;
         r = addRow(form, gbc, r, "Mã hóa đơn:", txtMaHoaDon);
-        r = addRow(form, gbc, r, "Mã đơn hàng:", txtMaDonHang);
+        r = addRow(form, gbc, r, "Mã đơn hàng:", cboMaDonHang); // <<< đổi ở đây
         r = addRow(form, gbc, r, "Mã KH:", txtMaKH);
         r = addRow(form, gbc, r, "Ngày lập:", spNgayLap);
         r = addRow(form, gbc, r, "Tổng tiền hàng:", txtTongTienHang);
@@ -204,56 +214,51 @@ public class QuanLyHoaDon extends JPanel {
         r = addRow(form, gbc, r, "Trạng thái:", cboTrangThai);
         r = addRow(form, gbc, r, "Mã NV lập:", txtMaNVLap);
 
+
         JScrollPane sp = new JScrollPane(form);
         sp.setBorder(null);
         sp.getVerticalScrollBar().setUnitIncrement(16);
         wrap.add(sp, BorderLayout.CENTER);
 
 
-        JPanel btnPanel = new JPanel(new GridLayout(2, 2, 10, 10));
+        JPanel btnPanel = new JPanel(new GridLayout(3, 2, 10, 10));
         btnPanel.setBorder(new EmptyBorder(10, 14, 14, 14));
 
         btnThem = new JButton("Thêm");
         btnSua = new JButton("Sửa");
         btnXoa = new JButton("Xóa");
         btnLamMoi = new JButton("Làm mới");
+        btnNhapExcel = new JButton("Nhập Excel");
+        btnXuatExcel = new JButton("Xuất Excel");
 
-        btnThem.setBackground(new Color(76, 175, 80));
-        btnThem.setForeground(Color.WHITE);
-        btnThem.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        btnThem.setFocusPainted(false);
-        btnThem.setBorderPainted(false);
+        // style giống các form khác
+        stylePrimaryGreen(btnThem);
+        stylePrimaryBlue(btnLamMoi);
 
-        btnLamMoi.setBackground(new Color(33, 150, 243));
-        btnLamMoi.setForeground(Color.WHITE);
-        btnLamMoi.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        btnLamMoi.setFocusPainted(false);
-        btnLamMoi.setBorderPainted(false);
+        styleGray(btnSua);
+        styleGray(btnXoa);
 
-        btnSua.setBackground(new Color(200, 200, 200));
-        btnSua.setForeground(Color.BLACK);
-        btnSua.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        btnSua.setFocusPainted(false);
-        btnSua.setBorderPainted(false);
+        // Excel: cho đồng bộ (bạn muốn xanh dương hết cũng được)
+        stylePrimaryBlue(btnNhapExcel);
+        stylePrimaryBlue(btnXuatExcel);
 
-        btnXoa.setBackground(new Color(200, 200, 200));
-        btnXoa.setForeground(Color.BLACK);
-        btnXoa.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        btnXoa.setFocusPainted(false);
-        btnXoa.setBorderPainted(false);
-
-        // ActionCommand để Controller switch-case
+        // ActionCommand
         btnThem.setActionCommand("Them");
         btnSua.setActionCommand("Sua");
         btnXoa.setActionCommand("Xoa");
         btnLamMoi.setActionCommand("LamMoi");
+        btnNhapExcel.setActionCommand("NhapExcel");
+        btnXuatExcel.setActionCommand("XuatExcel");
 
         btnPanel.add(btnThem);
         btnPanel.add(btnSua);
         btnPanel.add(btnXoa);
         btnPanel.add(btnLamMoi);
+        btnPanel.add(btnNhapExcel);
+        btnPanel.add(btnXuatExcel);
 
         wrap.add(btnPanel, BorderLayout.SOUTH);
+
         return wrap;
     }
 
@@ -299,8 +304,9 @@ public class QuanLyHoaDon extends JPanel {
         txtMaHoaDon.setText(valueAt(row, 0));
         txtMaHoaDon.setEnabled(false);
 
-        txtMaDonHang.setText(valueAt(row, 1));
+        cboMaDonHang.setSelectedItem(valueAt(row, 1));
         txtMaKH.setText(valueAt(row, 2));
+
 
         // Ngày lập: nếu model đang giữ Date object thì lấy trực tiếp
         Object oNgay = model.getValueAt(row, 3);
@@ -327,9 +333,9 @@ public class QuanLyHoaDon extends JPanel {
         txtMaHoaDon.setText("");
         txtMaHoaDon.setEnabled(true);
 
-        txtMaDonHang.setText("");
+        if (cboMaDonHang.getItemCount() > 0) cboMaDonHang.setSelectedIndex(0);
         txtMaKH.setText("");
-        spNgayLap.setValue(new Date());
+        txtMaNVLap.setText("");
 
         txtTongTienHang.setValue(0.00);
         txtTienGiam.setValue(0.00);
@@ -337,7 +343,6 @@ public class QuanLyHoaDon extends JPanel {
 
         cboPhuongThucTT.setSelectedIndex(0);
         cboTrangThai.setSelectedIndex(0);
-        txtMaNVLap.setText("");
 
         tblHoaDon.clearSelection();
         setButtonStateDefault();
@@ -353,13 +358,14 @@ public class QuanLyHoaDon extends JPanel {
         QLHD hd = new QLHD();
 
         hd.setMaHoaDon(txtMaHoaDon.getText().trim());
-        hd.setMaDonHang(txtMaDonHang.getText().trim());
+        hd.setMaDonHang(String.valueOf(cboMaDonHang.getSelectedItem()));
         hd.setMaKH(txtMaKH.getText().trim());
         hd.setNgayLap((Date) spNgayLap.getValue());
 
         float tongHang = Float.parseFloat(normalizeMoney(txtTongTienHang.getText()));
         float giam = Float.parseFloat(normalizeMoney(txtTienGiam.getText()));
-        float thanhToan = Float.parseFloat(normalizeMoney(txtTongThanhToan.getText()));
+        float thanhToan = tongHang - giam;
+        if (thanhToan < 0) thanhToan = 0;
 
         hd.setTongTienHang(tongHang);
         hd.setTienGiam(giam);
@@ -371,6 +377,7 @@ public class QuanLyHoaDon extends JPanel {
 
         return hd;
     }
+
 
     private String valueAt(int row, int col) {
         Object o = model.getValueAt(row, col);
@@ -388,4 +395,42 @@ public class QuanLyHoaDon extends JPanel {
         btnSua.setEnabled(false);
         btnXoa.setEnabled(false);
     }
+    public JComboBox<String> getCboMaDonHang() { return cboMaDonHang; }
+
+    public void setDonHangInfoToForm(String maKH, float tongTienHang, float tienGiam, String maNVLap) {
+        txtMaKH.setText(maKH == null ? "" : maKH);
+        txtMaNVLap.setText(maNVLap == null ? "" : maNVLap);
+
+        txtTongTienHang.setValue((double) tongTienHang);
+        txtTienGiam.setValue((double) tienGiam);
+
+        float thanhToan = tongTienHang - tienGiam;
+        if (thanhToan < 0) thanhToan = 0;
+        txtTongThanhToan.setValue((double) thanhToan);
+    }
+    private void stylePrimaryGreen(JButton b) {
+        b.setBackground(new Color(76, 175, 80));
+        b.setForeground(Color.WHITE);
+        b.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        b.setFocusPainted(false);
+        b.setBorderPainted(false);
+    }
+
+    private void stylePrimaryBlue(JButton b) {
+        b.setBackground(new Color(33, 150, 243));
+        b.setForeground(Color.WHITE);
+        b.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        b.setFocusPainted(false);
+        b.setBorderPainted(false);
+    }
+
+    private void styleGray(JButton b) {
+        b.setBackground(new Color(200, 200, 200));
+        b.setForeground(Color.BLACK);
+        b.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        b.setFocusPainted(false);
+        b.setBorderPainted(false);
+    }
+
+
 }
