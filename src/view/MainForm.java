@@ -39,7 +39,9 @@ import controller.BaoHanh.BaoHanhController;
 import controller.BaoHanh.TraCuuController;
 import controller.BaoHanh.TraMayController;
 import controller.Kho.DanhMucController;
+import controller.Kho.NhaCungCapController;
 import view.viewKho.QuanLyDanhMuc;
+import view.viewKho.QuanLyNhaCungCap;
 //>>>>>>> stash
 import view.viewKho.QuanLySanPham;
 //<<<<<<< HEAD
@@ -123,7 +125,7 @@ public class MainForm extends JFrame {
         
         addMenuItem("Sản phẩm Kho", 
                 "https://img.icons8.com/fluency/48/product.png", 
-                new String[]{"Danh sách sản phẩm", "Nhập kho", "Quản lí danh mục"});
+                new String[]{"Danh sách sản phẩm","Quản lí danh mục", "Nhập kho","Quản lý NCC" });
         
         // ==> MENU NHÂN SỰ <==
         addMenuItem("Nhân sự hệ thống", 
@@ -186,6 +188,10 @@ public class MainForm extends JFrame {
         // Lưu ý: String này phải khớp y hệt với text trong addMenuItem phía trên
         pnlCards.add(viewDM, "Quản lí danh mục");
 
+        QuanLyNhaCungCap viewNCC = new QuanLyNhaCungCap();
+        new NhaCungCapController(viewNCC);
+        pnlCards.add(viewNCC, "Quản lý NCC");
+        
         // ===== QUẢN LÝ ĐƠN HÀNG =====
         QuanLyDonHang viewDonHang = new QuanLyDonHang();
         new QLDHController(viewDonHang);  
