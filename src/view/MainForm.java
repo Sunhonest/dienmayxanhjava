@@ -41,11 +41,13 @@ import controller.BaoHanh.TraCuuController;
 import controller.BaoHanh.TraMayController;
 import controller.Kho.DanhMucController;
 import controller.Kho.NhaCungCapController;
+import controller.QLBH.ChiTietDonHangController;
 import controller.QLBH.KhachHangController;
 import view.viewKho.QuanLyDanhMuc;
 import view.viewKho.QuanLyNhaCungCap;
 //>>>>>>> stash
 import view.viewKho.QuanLySanPham;
+import view.viewQLBH.QuanLyChiTietDonHang;
 //<<<<<<< HEAD
 import view.viewQLBH.QuanLyHoaDon;
 import view.viewQLBH.QuanLyKhachHang;
@@ -140,7 +142,7 @@ public class MainForm extends JFrame {
         
         addMenuItem("Bán hàng (POS)", 
                 "https://img.icons8.com/fluency/48/pos-terminal.png", 
-                new String[]{"Quản lý khách hàng","Quản lý đơn hàng", "Quản lý hóa đơn"});
+                new String[]{"Quản lý khách hàng","Quản lý đơn hàng","Quản lý chi tiết đơn hàng", "Quản lý hóa đơn"});
         
         addMenuItem("Dịch vụ bảo hành", 
                 "https://img.icons8.com/fluency/48/maintenance.png",
@@ -206,8 +208,10 @@ public class MainForm extends JFrame {
         QuanLyKhachHang viewKH = new QuanLyKhachHang();
         new KhachHangController(viewKH);
         pnlCards.add(viewKH, "Quản lý khách hàng");
-
         
+        QuanLyChiTietDonHang viewCT = new QuanLyChiTietDonHang();
+        new ChiTietDonHangController(viewCT);
+        pnlCards.add(viewCT, "Quản lý chi tiết đơn hàng");
         
 
         // ... (Code các phần khác giữ nguyên)
