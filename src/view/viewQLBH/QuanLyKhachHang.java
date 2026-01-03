@@ -9,6 +9,7 @@ import java.awt.*;
 import java.awt.event.ActionListener;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 
@@ -17,8 +18,15 @@ public class QuanLyKhachHang extends JPanel {
     private JTable tblKhachHang;
     private DefaultTableModel model;
 
-    private JTextField txtMaKH, txtHoTen, txtSDT, txtEmail, txtDiaChi, txtTimKiem;
-    private JButton btnThem, btnSua, btnXoa, btnLamMoi, btnTim, btnNhapExcel, btnXuatExcel;
+    // Search
+    private JTextField txtTimKiem;
+    private JButton btnTim;
+
+    // Fields
+    private JTextField txtMaKH, txtHoTen, txtSDT, txtEmail, txtDiaChi;
+
+    // Buttons
+    private JButton btnThem, btnSua, btnXoa, btnLamMoi, btnNhapExcel, btnXuatExcel;
 
     public QuanLyKhachHang() {
         setLayout(new BorderLayout());
@@ -58,10 +66,34 @@ public class QuanLyKhachHang extends JPanel {
         };
 
         tblKhachHang = new JTable(model);
+
+        // STYLE TABLE
         tblKhachHang.setRowHeight(28);
         tblKhachHang.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         tblKhachHang.setSelectionBackground(new Color(187, 222, 251));
         tblKhachHang.setSelectionForeground(Color.BLACK);
+
+        // STYLE HEADER (xanh giống form bạn)
+        JTableHeader header = tblKhachHang.getTableHeader();
+        header.setBackground(new Color(33, 150, 243));
+        header.setForeground(Color.WHITE);
+        header.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        header.setPreferredSize(new Dimension(header.getWidth(), 35));
+        header.setOpaque(false);
+        header.setDefaultRenderer(new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value,
+                    boolean isSelected, boolean hasFocus, int row, int column) {
+                JLabel label = new JLabel(value == null ? "" : value.toString());
+                label.setBackground(new Color(33, 150, 243));
+                label.setForeground(Color.WHITE);
+                label.setFont(new Font("Segoe UI", Font.BOLD, 14));
+                label.setHorizontalAlignment(SwingConstants.CENTER);
+                label.setOpaque(true);
+                label.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, Color.WHITE));
+                return label;
+            }
+        });
 
         panel.add(top, BorderLayout.NORTH);
         panel.add(new JScrollPane(tblKhachHang), BorderLayout.CENTER);
@@ -110,6 +142,15 @@ public class QuanLyKhachHang extends JPanel {
         btnNhapExcel = new JButton("Nhập Excel");
         btnXuatExcel = new JButton("Xuất Excel");
 
+        // STYLE BUTTONS giống chuẩn bạn
+        stylePrimaryGreen(btnThem);
+        styleGray(btnSua);
+        styleGray(btnXoa);
+        stylePrimaryBlue(btnLamMoi);
+        stylePrimaryBlue(btnNhapExcel);
+        stylePrimaryBlue(btnXuatExcel);
+
+        // ActionCommand để Controller switch-case
         btnThem.setActionCommand("Them");
         btnSua.setActionCommand("Sua");
         btnXoa.setActionCommand("Xoa");
@@ -199,6 +240,7 @@ public class QuanLyKhachHang extends JPanel {
         return kh;
     }
 
+    // ===== Helpers =====
     private String valueAt(int row, int col) {
         Object o = model.getValueAt(row, col);
         return o == null ? "" : o.toString();
@@ -207,5 +249,30 @@ public class QuanLyKhachHang extends JPanel {
     private void setButtonStateDefault() {
         btnSua.setEnabled(false);
         btnXoa.setEnabled(false);
+    }
+
+    // ===== Style methods =====
+    private void stylePrimaryGreen(JButton b) {
+        b.setBackground(new Color(76, 175, 80));
+        b.setForeground(Color.WHITE);
+        b.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        b.setFocusPainted(false);
+        b.setBorderPainted(false);
+    }
+
+    private void stylePrimaryBlue(JButton b) {
+        b.setBackground(new Color(33, 150, 243));
+        b.setForeground(Color.WHITE);
+        b.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        b.setFocusPainted(false);
+        b.setBorderPainted(false);
+    }
+
+    private void styleGray(JButton b) {
+        b.setBackground(new Color(200, 200, 200));
+        b.setForeground(Color.BLACK);
+        b.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        b.setFocusPainted(false);
+        b.setBorderPainted(false);
     }
 }
