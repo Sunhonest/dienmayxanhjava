@@ -39,6 +39,7 @@ public class NhapKhoController implements ActionListener {
     private PhieuNhapDAO pnDao;
     private DecimalFormat df = new DecimalFormat("#,###");
     private domain.TaiKhoan taiKhoan;
+    private List<PhieuNhap> listPhieuNhap;
 
     public NhapKhoController(QuanLyNhapKho view, domain.TaiKhoan tk) {
         this.view = view;
@@ -68,11 +69,15 @@ public class NhapKhoController implements ActionListener {
 
     // 1. CẬP NHẬT: Hiển thị Ghi chú ra bảng
     private void loadTableTuDB() {
-        List<PhieuNhap> list = pnDao.getAll();
+        // --- SỬA DÒNG NÀY (Gán vào biến toàn cục thay vì biến local) ---
+        listPhieuNhap = pnDao.getAll(); 
+        
         DefaultTableModel model = view.getModel();
         model.setRowCount(0);
         double tongTien = 0;
-        for (PhieuNhap pn : list) {
+        
+        // Duyệt qua biến toàn cục listPhieuNhap
+        for (PhieuNhap pn : listPhieuNhap) {
             model.addRow(new Object[]{
                 pn.getId(),        
                 pn.getMaSP(),      
@@ -80,7 +85,6 @@ public class NhapKhoController implements ActionListener {
                 pn.getSoLuong(),   
                 df.format(pn.getDonGia()), 
                 df.format(pn.getThanhTien()), 
-                // --- FIX: Hiển thị Ghi chú thay vì NgayNhap (Vì bảng bên View cột cuối là Ghi chú) ---
                 pn.getGhiChu()   
             });
             tongTien += pn.getThanhTien();
@@ -100,7 +104,7 @@ public class NhapKhoController implements ActionListener {
             view.setNhaCungCap(nccDao.getAll());
             view.setMaPhieu("PN" + System.currentTimeMillis());
         } else if (cmd.equals("Sửa")) suaPhieu();
-        else if (cmd.equals("Xuất Excel")) xuatExcel(); // <-- Thêm xử lý sự kiện này
+        
         
         if (e.getSource() == view.getCboSanPham()) {
             domain.Kho.SanPham sp = view.getSelectedSanPham();
@@ -204,85 +208,28 @@ public class NhapKhoController implements ActionListener {
         }
     }
     
-    private void xuatExcel() {
-        // 1. Cho người dùng chọn đường dẫn lưu file
-        JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setDialogTitle("Chọn nơi lưu file Excel");
-        fileChooser.setFileFilter(new FileNameExtensionFilter("Excel Files", "xlsx"));
-        
-        int userSelection = fileChooser.showSaveDialog(view);
-        
-        if (userSelection == JFileChooser.APPROVE_OPTION) {
-            File fileToSave = fileChooser.getSelectedFile();
-            // Đảm bảo đuôi file là .xlsx
-            String filePath = fileToSave.getAbsolutePath();
-            if (!filePath.endsWith(".xlsx")) {
-                filePath += ".xlsx";
-            }
-
-            try (Workbook workbook = new XSSFWorkbook()) {
-                Sheet sheet = workbook.createSheet("Lịch sử nhập kho");
-
-                // 2. Tạo Header (Dòng tiêu đề)
-                Row headerRow = sheet.createRow(0);
-                String[] columns = {"ID", "Mã SP", "Tên SP", "Số lượng", "Đơn giá", "Thành tiền", "Ghi chú"};
-                
-                // Style cho header (In đậm)
-                CellStyle headerStyle = workbook.createCellStyle();
-                Font font = workbook.createFont();
-                font.setBold(true);
-                headerStyle.setFont(font);
-
-                for (int i = 0; i < columns.length; i++) {
-                    Cell cell = headerRow.createCell(i);
-                    cell.setCellValue(columns[i]);
-                    cell.setCellStyle(headerStyle);
-                }
-
-                // 3. Lấy dữ liệu từ JTable trong View và ghi vào Excel
-                DefaultTableModel model = view.getModel();
-                for (int i = 0; i < model.getRowCount(); i++) {
-                    Row row = sheet.createRow(i + 1);
-                    for (int j = 0; j < columns.length; j++) {
-                        Object value = model.getValueAt(i, j);
-                        row.createCell(j).setCellValue(value != null ? value.toString() : "");
-                    }
-                }
-
-                // 4. Tự động chỉnh độ rộng cột
-                for (int i = 0; i < columns.length; i++) {
-                    sheet.autoSizeColumn(i);
-                }
-
-                // 5. Ghi ra file
-                try (FileOutputStream fileOut = new FileOutputStream(filePath)) {
-                    workbook.write(fileOut);
-                }
-
-                // Thông báo và mở file
-                int open = JOptionPane.showConfirmDialog(view, 
-                        "Xuất file thành công! Bạn có muốn mở file ngay không?", 
-                        "Thông báo", JOptionPane.YES_NO_OPTION);
-                if (open == JOptionPane.YES_OPTION) {
-                    Desktop.getDesktop().open(new File(filePath));
-                }
-
-            } catch (IOException ex) {
-                ex.printStackTrace();
-                JOptionPane.showMessageDialog(view, "Lỗi khi ghi file Excel: " + ex.getMessage());
-            }
-        }
-    }
-
+    
     // 4. CẬP NHẬT: Đổ dữ liệu Ghi chú ngược lại TextField khi click bảng
     private void fillForm() {
         int row = view.getTable().getSelectedRow();
         if (row >= 0) {
+            // 1. Lấy ID từ cột đầu tiên (index 0)
+            int id = Integer.parseInt(view.getModel().getValueAt(row, 0).toString());
+            
+            // 2. Tìm trong danh sách để lấy Mã Phiếu và Mã NV (Dữ liệu bị ẩn trên bảng)
+            for (PhieuNhap pn : listPhieuNhap) {
+                if (pn.getId() == id) {
+                    view.setMaPhieu(pn.getMaPhieu());
+                    view.setNhanVien(pn.getMaNV());
+                    break; // Tìm thấy rồi thì thoát vòng lặp
+                }
+            }
+
+            // 3. Các dữ liệu còn lại lấy từ bảng như cũ
             String maSP = view.getModel().getValueAt(row, 1).toString();
             String sl = view.getModel().getValueAt(row, 3).toString();
             String gia = view.getModel().getValueAt(row, 4).toString().replace(",", "").replace(".", ""); 
             
-            // --- FIX: Lấy dữ liệu cột Ghi Chú (cột 6) ---
             Object ghiChuObj = view.getModel().getValueAt(row, 6);
             String ghiChu = (ghiChuObj != null) ? ghiChuObj.toString() : "";
 
@@ -291,7 +238,6 @@ public class NhapKhoController implements ActionListener {
             view.setDonGia(gia);
             view.setGhiChu(ghiChu);
             view.setTrangThaiNut(true);
-            
         }
     }
 }
