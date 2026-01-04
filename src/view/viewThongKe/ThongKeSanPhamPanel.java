@@ -3,6 +3,7 @@ package view.viewThongKe;
 import controller.ThongKe.ThongKeController;
 import model.Kho.DanhMucDAO;
 import domain.Kho.DanhMuc;
+import util.ExcelExporter;
 import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -22,7 +23,7 @@ public class ThongKeSanPhamPanel extends JPanel {
     private JComboBox<Object> cboDanhMuc;
     private JSpinner spnSoLuong, spnNguongTonKho;
     private JLabel lblTongSanPham, lblTongSoLuongBan, lblTongDoanhThu;
-    private JButton btnThongKe, btnLamMoi;
+    private JButton btnThongKe, btnLamMoi, btnXuatExcel;
     private ThongKeController thongKeController;
     private DanhMucDAO danhMucDAO;
     private final Color COLOR_PRIMARY = Color.decode("#2196F3");
@@ -219,9 +220,11 @@ public class ThongKeSanPhamPanel extends JPanel {
         
         btnThongKe = styleButton(new JButton("Thống kê"), COLOR_SUCCESS);
         btnLamMoi = styleButton(new JButton("Làm mới"), COLOR_PRIMARY);
+        btnXuatExcel = styleButton(new JButton("Xuất Excel"), COLOR_WARNING);
         
         pnlButtons.add(btnThongKe);
         pnlButtons.add(btnLamMoi);
+        pnlButtons.add(btnXuatExcel);
         
         return pnlButtons;
     }
@@ -240,6 +243,7 @@ public class ThongKeSanPhamPanel extends JPanel {
     private void addActionListeners() {
         btnThongKe.addActionListener(e -> thongKe());
         btnLamMoi.addActionListener(e -> lamMoi());
+        btnXuatExcel.addActionListener(e -> xuatExcel());
     }
     
     private void updateFilterVisibility() {
@@ -426,5 +430,29 @@ public class ThongKeSanPhamPanel extends JPanel {
         model.setRowCount(0);
         setDefaultValues();
         updateSummary(null);
+    }
+    
+    private void xuatExcel() {
+        if (model.getRowCount() == 0) {
+            JOptionPane.showMessageDialog(this, "Không có dữ liệu để xuất Excel!", "Thông báo", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        
+        try {
+            String[] summaryInfo = {
+                lblTongSanPham.getText(),
+                lblTongSoLuongBan.getText(),
+                lblTongDoanhThu.getText()
+            };
+            
+            String loaiThongKe = (String) cboLoaiThongKe.getSelectedItem();
+            String fileName = "ThongKeSanPham_" + loaiThongKe.replaceAll(" ", "");
+            
+            ExcelExporter.exportTableToExcel(tblThongKe, "THỐNG KÊ SẢN PHẨM - " + loaiThongKe.toUpperCase(), fileName, summaryInfo);
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Lỗi khi xuất Excel: " + e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+        }
     }
 }

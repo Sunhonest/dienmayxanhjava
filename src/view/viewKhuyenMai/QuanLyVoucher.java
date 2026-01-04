@@ -3,6 +3,7 @@ package view.viewKhuyenMai;
 import controller.KhuyenMai.VoucherController;
 import controller.KhuyenMai.VoucherUIController;
 import domain.Voucher;
+import util.ExcelExporter;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -123,10 +124,10 @@ public class QuanLyVoucher extends JPanel {
         JPanel pnlInput = new JPanel();
         pnlInput.setLayout(new BorderLayout(10, 10));
         pnlInput.setBackground(Color.WHITE);
-        pnlInput.setPreferredSize(new Dimension(550, 0));
+        pnlInput.setPreferredSize(new Dimension(380, 0));
         pnlInput.setBorder(BorderFactory.createCompoundBorder(
                 new LineBorder(Color.LIGHT_GRAY, 1, true),
-                new EmptyBorder(20, 20, 20, 20)
+                new EmptyBorder(15, 15, 15, 15)
         ));
         
         // 1. TIÊU ĐỀ FORM
@@ -136,27 +137,29 @@ public class QuanLyVoucher extends JPanel {
         lblForm.setHorizontalAlignment(SwingConstants.CENTER);
         pnlInput.add(lblForm, BorderLayout.NORTH);
         
-        // 2. FORM FIELDS (2 CỘT)
+        // 2. FORM FIELDS
         JPanel pnlFields = new JPanel();
-        pnlFields.setLayout(new GridLayout(0, 2, 15, 12));
+        pnlFields.setLayout(new BoxLayout(pnlFields, BoxLayout.Y_AXIS));
         pnlFields.setBackground(Color.WHITE);
+        pnlFields.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         
-        // Cột 1 & 2: Mã & Tên Voucher
-        pnlFields.add(createLabeledField("Mã Voucher:", txtMaVoucher = new JTextField()));
-        txtMaVoucher.setEditable(false);  // Khóa mã voucher - tự generate
-        pnlFields.add(createLabeledField("Tên Voucher:", txtTenVoucher = new JTextField()));
+        // Mã Voucher
+        pnlFields.add(createSingleField("Mã Voucher:", txtMaVoucher = new JTextField()));
+        txtMaVoucher.setEditable(false);
+        pnlFields.add(Box.createVerticalStrut(5));
         
-        // Cột 1 & 2: Loại giảm & Giá trị giảm
-        JPanel pnlLoaiGiam = new JPanel(new BorderLayout());
-        pnlLoaiGiam.setBackground(Color.WHITE);
-        pnlLoaiGiam.add(createLabel("Loại giảm:"), BorderLayout.NORTH);
+        // Tên Voucher
+        pnlFields.add(createSingleField("Tên Voucher:", txtTenVoucher = new JTextField()));
+        pnlFields.add(Box.createVerticalStrut(5));
+        
+        // Loại giảm
         cboLoaiGiam = new JComboBox<>(new String[]{"PHAN_TRAM", "TIEN_MAT"});
-        styleComponent(cboLoaiGiam);
+        pnlFields.add(createSingleComboField("Loại giảm:", cboLoaiGiam));
         cboLoaiGiam.addActionListener(e -> updateGiamToiDaField());
-        pnlLoaiGiam.add(cboLoaiGiam, BorderLayout.CENTER);
-        pnlFields.add(pnlLoaiGiam);
+        pnlFields.add(Box.createVerticalStrut(5));
         
-        pnlFields.add(createLabeledField("Giá trị giảm:", txtGiaTriGiam = new JTextField()));
+        // Giá trị giảm
+        pnlFields.add(createSingleField("Giá trị giảm:", txtGiaTriGiam = new JTextField()));
         txtGiaTriGiam.getDocument().addDocumentListener(new DocumentListener() {
             @Override
             public void insertUpdate(DocumentEvent e) { updateGiamToiDaField(); }
@@ -165,46 +168,42 @@ public class QuanLyVoucher extends JPanel {
             @Override
             public void changedUpdate(DocumentEvent e) { updateGiamToiDaField(); }
         });
+        pnlFields.add(Box.createVerticalStrut(5));
         
-        // Cột 1 & 2: Giảm tối đa & ĐH tối thiểu
-        pnlFields.add(createLabeledField("Giảm tối đa:", txtGiamToiDa = new JTextField()));
-        pnlFields.add(createLabeledField("ĐH tối thiểu:", txtDonHangToiThieu = new JTextField()));
+        // Giảm tối đa
+        pnlFields.add(createSingleField("Giảm tối đa:", txtGiamToiDa = new JTextField()));
+        pnlFields.add(Box.createVerticalStrut(5));
         
-        // Cột 1 & 2: Ngày bắt đầu & Ngày kết thúc
-        JPanel pnlNgayBD = new JPanel(new BorderLayout());
-        pnlNgayBD.setBackground(Color.WHITE);
-        pnlNgayBD.add(createLabel("Ngày bắt đầu:"), BorderLayout.NORTH);
+        // ĐH tối thiểu
+        pnlFields.add(createSingleField("ĐH tối thiểu:", txtDonHangToiThieu = new JTextField()));
+        pnlFields.add(Box.createVerticalStrut(5));
+        
+        // Ngày bắt đầu
         spnNgayBatDau = new JSpinner(new SpinnerDateModel());
         JSpinner.DateEditor editor1 = new JSpinner.DateEditor(spnNgayBatDau, "dd/MM/yyyy HH:mm");
         spnNgayBatDau.setEditor(editor1);
-        styleComponent(spnNgayBatDau);
-        pnlNgayBD.add(spnNgayBatDau, BorderLayout.CENTER);
-        pnlFields.add(pnlNgayBD);
+        pnlFields.add(createSingleSpinnerField("Ngày bắt đầu:", spnNgayBatDau));
+        pnlFields.add(Box.createVerticalStrut(5));
         
-        JPanel pnlNgayKT = new JPanel(new BorderLayout());
-        pnlNgayKT.setBackground(Color.WHITE);
-        pnlNgayKT.add(createLabel("Ngày kết thúc:"), BorderLayout.NORTH);
+        // Ngày kết thúc
         spnNgayKetThuc = new JSpinner(new SpinnerDateModel());
         JSpinner.DateEditor editor2 = new JSpinner.DateEditor(spnNgayKetThuc, "dd/MM/yyyy HH:mm");
         spnNgayKetThuc.setEditor(editor2);
-        styleComponent(spnNgayKetThuc);
-        pnlNgayKT.add(spnNgayKetThuc, BorderLayout.CENTER);
-        pnlFields.add(pnlNgayKT);
+        pnlFields.add(createSingleSpinnerField("Ngày kết thúc:", spnNgayKetThuc));
+        pnlFields.add(Box.createVerticalStrut(5));
         
-        // Cột 1 & 2: Số lượng & Trạng thái
-        pnlFields.add(createLabeledField("Số lượng:", txtSoLuong = new JTextField()));
+        // Số lượng
+        pnlFields.add(createSingleField("Số lượng:", txtSoLuong = new JTextField()));
+        pnlFields.add(Box.createVerticalStrut(5));
         
-        JPanel pnlTrangThai = new JPanel(new BorderLayout());
-        pnlTrangThai.setBackground(Color.WHITE);
-        pnlTrangThai.add(createLabel("Trạng thái:"), BorderLayout.NORTH);
+        // Trạng thái
         cboTrangThai = new JComboBox<>(new String[]{"NHAP", "KICH_HOAT", "NGUNG"});
-        styleComponent(cboTrangThai);
-        pnlTrangThai.add(cboTrangThai, BorderLayout.CENTER);
-        pnlFields.add(pnlTrangThai);
+        pnlFields.add(createSingleComboField("Trạng thái:", cboTrangThai));
+        pnlFields.add(Box.createVerticalStrut(5));
         
-        // Cột 1 (đầy đủ chiều rộng): Mã NV tạo
-        pnlFields.add(createLabeledField("Mã NV tạo:", txtMaNV = new JTextField()));
-        txtMaNV.setEditable(false);  // Khóa mã NV tạo
+        // Mã NV tạo
+        pnlFields.add(createSingleField("Mã NV tạo:", txtMaNV = new JTextField()));
+        txtMaNV.setEditable(false);
         
         // Scroll pane cho fields
         JScrollPane scrollFields = new JScrollPane(pnlFields);
@@ -213,90 +212,145 @@ public class QuanLyVoucher extends JPanel {
         scrollFields.setBorder(BorderFactory.createEmptyBorder());
         pnlInput.add(scrollFields, BorderLayout.CENTER);
         
-        // 3. NÚT BẤM (dưới cùng)
-        JPanel pnlBtnWrapper = new JPanel(new BorderLayout());
+        // 3. NÚT BẤM
+        JPanel pnlBtnWrapper = new JPanel();
+        pnlBtnWrapper.setLayout(new BoxLayout(pnlBtnWrapper, BoxLayout.Y_AXIS));
         pnlBtnWrapper.setBackground(Color.WHITE);
-        pnlBtnWrapper.setBorder(BorderFactory.createEmptyBorder(15, 0, 0, 0));
+        pnlBtnWrapper.setBorder(BorderFactory.createEmptyBorder(15, 10, 10, 10));
         
-        JPanel pnlGridButtons = new JPanel(new GridLayout(2, 4, 8, 8));
-        pnlGridButtons.setBackground(Color.WHITE);
+        JPanel pnlBtnRow1 = new JPanel(new GridLayout(1, 4, 5, 5));
+        pnlBtnRow1.setBackground(Color.WHITE);
         
-        btnThem = createButton("Them", "Thêm", COLOR_SUCCESS);
-        btnSua = createButton("Sua", "Sửa", COLOR_WARNING);
-        btnXoa = createButton("Xoa", "Xóa", COLOR_DANGER);
-        btnLamMoi = createButton("LamMoi", "Làm mới", COLOR_PRIMARY);
-        btnKichHoat = createButton("KichHoat", "Kích hoạt", COLOR_PURPLE);
-        btnLuu = createButton("Luu", "Lưu", Color.decode("#8BC34A"));
-        btnHuy = createButton("Huy", "Hủy", Color.decode("#9E9E9E"));
+        btnThem = createCompactButton("Them", "Thêm", COLOR_SUCCESS);
+        btnSua = createCompactButton("Sua", "Sửa", COLOR_WARNING);
+        btnXoa = createCompactButton("Xoa", "Xóa", COLOR_DANGER);
+        btnLamMoi = createCompactButton("LamMoi", "Làm mới", COLOR_PRIMARY);
         
-        pnlGridButtons.add(btnThem);
-        pnlGridButtons.add(btnSua);
-        pnlGridButtons.add(btnXoa);
-        pnlGridButtons.add(btnLamMoi);
-        pnlGridButtons.add(btnKichHoat);
-        pnlGridButtons.add(btnLuu);
-        pnlGridButtons.add(btnHuy);
-        pnlGridButtons.add(new JPanel()); // Empty cell
+        pnlBtnRow1.add(btnThem);
+        pnlBtnRow1.add(btnSua);
+        pnlBtnRow1.add(btnXoa);
+        pnlBtnRow1.add(btnLamMoi);
+        pnlBtnWrapper.add(pnlBtnRow1);
+        pnlBtnWrapper.add(Box.createVerticalStrut(5));
         
-        pnlBtnWrapper.add(pnlGridButtons, BorderLayout.CENTER);
+        JPanel pnlBtnRow2 = new JPanel(new GridLayout(1, 3, 5, 5));
+        pnlBtnRow2.setBackground(Color.WHITE);
+        
+        btnKichHoat = createCompactButton("KichHoat", "Kích hoạt", COLOR_PURPLE);
+        btnLuu = createCompactButton("Luu", "Lưu", Color.decode("#8BC34A"));
+        btnHuy = createCompactButton("Huy", "Hủy", Color.decode("#9E9E9E"));
+        
+        pnlBtnRow2.add(btnKichHoat);
+        pnlBtnRow2.add(btnLuu);
+        pnlBtnRow2.add(btnHuy);
+        pnlBtnWrapper.add(pnlBtnRow2);
         pnlInput.add(pnlBtnWrapper, BorderLayout.SOUTH);
         
         add(pnlInput, BorderLayout.EAST);
     }
     
     // === HELPER UI ===
-    private JPanel createLabeledField(String labelText, JTextField field) {
-        JPanel panel = new JPanel(new BorderLayout());
+    private JPanel createSingleField(String labelText, JTextField field) {
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.setBackground(Color.WHITE);
+        panel.setAlignmentX(Component.LEFT_ALIGNMENT);
         
-        JLabel lbl = createLabel(labelText);
-        panel.add(lbl, BorderLayout.NORTH);
+        JLabel lbl = new JLabel(labelText);
+        lbl.setFont(new Font("Arial", Font.BOLD, 12));
+        lbl.setAlignmentX(Component.LEFT_ALIGNMENT);
+        panel.add(lbl);
+        panel.add(Box.createVerticalStrut(2));
         
-        styleComponent(field);
-        field.setMaximumSize(null);
-        panel.add(field, BorderLayout.CENTER);
+        field.setFont(new Font("Arial", Font.PLAIN, 12));
+        field.setPreferredSize(new Dimension(300, 22));
+        field.setMaximumSize(new Dimension(300, 22));
+        field.setAlignmentX(Component.LEFT_ALIGNMENT);
+        panel.add(field);
         
         return panel;
     }
     
-    private JTextField createField(JPanel panel, String labelText) {
-        panel.add(createLabel(labelText));
-        JTextField txt = new JTextField();
-        styleComponent(txt);
-        panel.add(txt);
-        panel.add(Box.createVerticalStrut(15));
-        return txt;
+    private JPanel createSingleComboField(String labelText, JComboBox<String> combo) {
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setBackground(Color.WHITE);
+        panel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        
+        JLabel lbl = new JLabel(labelText);
+        lbl.setFont(new Font("Arial", Font.BOLD, 12));
+        lbl.setAlignmentX(Component.LEFT_ALIGNMENT);
+        panel.add(lbl);
+        panel.add(Box.createVerticalStrut(2));
+        
+        combo.setFont(new Font("Arial", Font.PLAIN, 12));
+        combo.setPreferredSize(new Dimension(300, 22));
+        combo.setMaximumSize(new Dimension(300, 22));
+        combo.setAlignmentX(Component.LEFT_ALIGNMENT);
+        panel.add(combo);
+        
+        return panel;
     }
     
+    private JPanel createSingleSpinnerField(String labelText, JSpinner spinner) {
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setBackground(Color.WHITE);
+        panel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        
+        JLabel lbl = new JLabel(labelText);
+        lbl.setFont(new Font("Arial", Font.BOLD, 12));
+        lbl.setAlignmentX(Component.LEFT_ALIGNMENT);
+        panel.add(lbl);
+        panel.add(Box.createVerticalStrut(2));
+        
+        spinner.setFont(new Font("Arial", Font.PLAIN, 12));
+        spinner.setPreferredSize(new Dimension(300, 22));
+        spinner.setMaximumSize(new Dimension(300, 22));
+        spinner.setAlignmentX(Component.LEFT_ALIGNMENT);
+        panel.add(spinner);
+        
+        return panel;
+    }
+    
+    private JButton createCompactButton(String command, String text, Color bg) {
+        JButton btn = new JButton(text);
+        btn.setActionCommand(command);
+        btn.setFont(new Font("Arial", Font.BOLD, 10));
+        btn.setBackground(bg);
+        btn.setForeground(Color.WHITE);
+        btn.setFocusPainted(false);
+        btn.setBorderPainted(false);
+        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btn.setPreferredSize(new Dimension(0, 24));
+        return btn;
+    }
+    
+    private void xuatExcel() {
+        if (model.getRowCount() == 0) {
+            JOptionPane.showMessageDialog(this, "Không có dữ liệu để xuất Excel!", "Thông báo", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        
+        try {
+            String[] summaryInfo = {
+                "Tổng số voucher: " + model.getRowCount(),
+                "Ngày xuất: " + new SimpleDateFormat("dd/MM/yyyy HH:mm").format(new Date())
+            };
+            
+            ExcelExporter.exportTableToExcel(tblVoucher, "DANH SÁCH VOUCHER KHUYẾN MÃI", "DanhSachVoucher", summaryInfo);
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Lỗi khi xuất Excel: " + e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+        }
+    }
     private JLabel createLabel(String text) {
         JLabel lbl = new JLabel(text);
         lbl.setFont(FONT_LABEL);
         lbl.setForeground(Color.BLACK);
         lbl.setAlignmentX(Component.LEFT_ALIGNMENT);
         return lbl;
-    }
-    
-    private void styleComponent(JComponent comp) {
-        comp.setFont(FONT_INPUT);
-        comp.setBackground(Color.WHITE);
-        comp.setForeground(Color.BLACK);
-        // Giảm chiều cao input xuống 28px thay vì 35px
-        comp.setPreferredSize(new Dimension(0, 28));
-        comp.setMaximumSize(new Dimension(Integer.MAX_VALUE, 28));
-        comp.setMinimumSize(new Dimension(0, 28));
-        comp.setAlignmentX(Component.LEFT_ALIGNMENT);
-    }
-    
-    private JButton createButton(String command, String text, Color bg) {
-        JButton btn = new JButton(text);
-        btn.setActionCommand(command);
-        btn.setFont(new Font("Arial", Font.BOLD, 13));
-        btn.setBackground(bg);
-        btn.setForeground(Color.WHITE);
-        btn.setFocusPainted(false);
-        btn.setBorderPainted(false);
-        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        return btn;
     }
     
     // === BUTTON STATE MANAGEMENT ===

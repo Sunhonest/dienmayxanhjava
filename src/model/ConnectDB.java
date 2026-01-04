@@ -8,8 +8,8 @@ public class ConnectDB {
     
     // Cấu hình kết nối XAMPP
     private static final String HOST = "localhost";
-    private static final String PORT = "3306";
-    private static final String DBNAME = "dbdienmayxanh"; // Tên database bạn vừa tạo
+    private static final String PORT = "3307";
+    private static final String DBNAME = "dbdienmayxanh_new"; // Tên database bạn vừa tạo
     private static final String USERNAME = "root";        // Mặc định XAMPP là root
     private static final String PASSWORD = "123456";            // Mặc định XAMPP không có pass
 
