@@ -41,13 +41,16 @@ public class ChiTietDonHangController implements ActionListener {
         this.dao = new ChiTietDonHangDAO();
 
         this.view.addActionListener(this);
+
         this.view.getTable().addMouseListener(new MouseAdapter() {
-            @Override public void mouseClicked(MouseEvent e) {
+            @Override
+            public void mouseClicked(MouseEvent e) {
                 view.fillFormTuBang();
+                view.refreshThanhTien();
             }
         });
 
-        // Auto: đổi SP -> lấy GiaBan -> tính thành tiền
+        // Đổi SP -> set đơn giá theo GiaBan
         view.getCboMaSP().addItemListener(e -> {
             if (e.getStateChange() == ItemEvent.SELECTED) {
                 String maSP = String.valueOf(view.getCboMaSP().getSelectedItem());
@@ -56,26 +59,18 @@ public class ChiTietDonHangController implements ActionListener {
             }
         });
 
-        // Auto: đổi số lượng -> tính thành tiền
-        // (view.updateThanhTien() đã có)
-        // bắt sự kiện thay đổi spinner bằng timer nhẹ cho khỏi rườm rà
-        new javax.swing.Timer(200, ev -> view.updateThanhTien()).start();
+        new javax.swing.Timer(200, ev -> view.refreshThanhTien()).start();
 
-        loadCombo();
+        loadComboMaSP();
         loadData(dao.getAll());
         view.resetForm();
+        view.setMaDonHang(dao.taoMaDonHangMoi()); // auto sinh mã lần đầu
     }
 
-    private void loadCombo() {
-        // MaDonHang
-        view.getCboMaDonHang().removeAllItems();
-        for (String ma : dao.getAllMaDonHang()) view.getCboMaDonHang().addItem(ma);
-
-        // MaSP
+    private void loadComboMaSP() {
         view.getCboMaSP().removeAllItems();
         for (String ma : dao.getAllMaSP()) view.getCboMaSP().addItem(ma);
 
-        // set donGia theo sp đầu (nếu có)
         if (view.getCboMaSP().getItemCount() > 0) {
             String maSP = String.valueOf(view.getCboMaSP().getSelectedItem());
             view.setDonGia(dao.getGiaBanByMaSP(maSP));
@@ -89,7 +84,6 @@ public class ChiTietDonHangController implements ActionListener {
         DecimalFormat df = new DecimalFormat("#,##0.00");
         for (ChiTietDonHang ct : list) {
             model.addRow(new Object[]{
-                ct.getId(),
                 ct.getMaDonHang(),
                 ct.getMaSP(),
                 ct.getSoLuong(),
@@ -109,8 +103,9 @@ public class ChiTietDonHangController implements ActionListener {
                 case "Xoa": xoa(); break;
                 case "LamMoi":
                     view.resetForm();
-                    loadCombo();
+                    loadComboMaSP();
                     loadData(dao.getAll());
+                    view.setMaDonHang(dao.taoMaDonHangMoi());
                     break;
                 case "Tim":
                     loadData(dao.search(view.getKeyword()));
@@ -129,10 +124,10 @@ public class ChiTietDonHangController implements ActionListener {
     }
 
     private void them() {
-        ChiTietDonHang ct = view.getChiTietFromInput();
+        ChiTietDonHang ct = view.getCTDHFromInput();
 
         if (ct.getMaDonHang() == null || ct.getMaDonHang().isBlank()) {
-            JOptionPane.showMessageDialog(view, "Chưa chọn Mã đơn hàng!");
+            JOptionPane.showMessageDialog(view, "Mã đơn hàng đang trống!");
             return;
         }
         if (ct.getMaSP() == null || ct.getMaSP().isBlank()) {
@@ -144,51 +139,64 @@ public class ChiTietDonHangController implements ActionListener {
             return;
         }
 
-        // nếu người dùng chưa nhập đơn giá -> lấy GiaBan
-        if (ct.getDonGia() <= 0) {
-            ct.setDonGia(dao.getGiaBanByMaSP(ct.getMaSP()));
-            ct.setThanhTien(ct.getSoLuong() * ct.getDonGia());
-        }
+        if (ct.getDonGia() <= 0) ct.setDonGia(dao.getGiaBanByMaSP(ct.getMaSP()));
+        ct.setThanhTien(ct.getSoLuong() * ct.getDonGia());
 
         if (dao.insert(ct) > 0) {
             JOptionPane.showMessageDialog(view, "Thêm chi tiết đơn hàng thành công!");
             loadData(dao.getAll());
             view.resetForm();
+            view.setMaDonHang(dao.taoMaDonHangMoi()); // sinh mã mới sau khi thêm
+        } else {
+            JOptionPane.showMessageDialog(view, "Không thêm được! Có thể MaDonHang bị trùng.");
         }
     }
 
     private void sua() {
-        Integer id = view.getIdDangChon();
-        if (id == null) {
+        String maDH = view.getMaDonHangDangChon();
+        if (maDH == null) {
             JOptionPane.showMessageDialog(view, "Chọn dòng cần sửa!");
             return;
         }
-        ChiTietDonHang ct = view.getChiTietFromInput();
-        ct.setId(id); // chắc chắn đúng id đang chọn
+
+        ChiTietDonHang ct = view.getCTDHFromInput();
+        ct.setMaDonHang(maDH); // khóa chính ko đổi
+
+        if (ct.getDonGia() <= 0) ct.setDonGia(dao.getGiaBanByMaSP(ct.getMaSP()));
+        ct.setThanhTien(ct.getSoLuong() * ct.getDonGia());
 
         if (dao.update(ct) > 0) {
             JOptionPane.showMessageDialog(view, "Cập nhật thành công!");
             loadData(dao.getAll());
             view.resetForm();
+            view.setMaDonHang(dao.taoMaDonHangMoi());
         }
     }
 
     private void xoa() {
-        Integer id = view.getIdDangChon();
-        if (id == null) return;
+        String maDH = view.getMaDonHangDangChon();
+        if (maDH == null) return;
 
-        int cf = JOptionPane.showConfirmDialog(view, "Xóa chi tiết đơn hàng ID=" + id + " ?", "Xác nhận", JOptionPane.YES_NO_OPTION);
+        int cf = JOptionPane.showConfirmDialog(
+                view,
+                "Xóa chi tiết đơn hàng MaDonHang=" + maDH + " ?",
+                "Xác nhận",
+                JOptionPane.YES_NO_OPTION
+        );
         if (cf == JOptionPane.YES_OPTION) {
-            if (dao.delete(id) > 0) {
+            if (dao.delete(maDH) > 0) {
                 JOptionPane.showMessageDialog(view, "Đã xóa!");
                 loadData(dao.getAll());
                 view.resetForm();
+                view.setMaDonHang(dao.taoMaDonHangMoi());
+            } else {
+                JOptionPane.showMessageDialog(view, "Không xóa được! Có thể đang bị donhang tham chiếu FK.");
             }
         }
     }
 
-    // ================== EXCEL ==================
-    // Cột: A-F = ID | MaDonHang | MaSP | SoLuong | DonGia | ThanhTien
+    // ========== EXCEL ==========
+    // Cột: A-E = MaDonHang | MaSP | SoLuong | DonGia | ThanhTien
     private void nhapExcel() throws Exception {
         JFileChooser fc = new JFileChooser();
         if (fc.showOpenDialog(view) != JFileChooser.APPROVE_OPTION) return;
@@ -201,17 +209,19 @@ public class ChiTietDonHangController implements ActionListener {
 
             Sheet sheet = wb.getSheetAt(0);
 
-            for (int i = 1; i <= sheet.getLastRowNum(); i++) { // bỏ header
+            for (int i = 1; i <= sheet.getLastRowNum(); i++) {
                 Row row = sheet.getRow(i);
                 if (row == null) continue;
 
-                String maDH = getCellString(row.getCell(1));
-                String maSP = getCellString(row.getCell(2));
-                int soLuong = parseIntSafe(getCellString(row.getCell(3)));
-                double donGia = parseDoubleSafe(getCellString(row.getCell(4)));
-                double thanhTien = parseDoubleSafe(getCellString(row.getCell(5)));
+                String maDH = getCellString(row.getCell(0));
+                String maSP = getCellString(row.getCell(1));
+                int soLuong = parseIntSafe(getCellString(row.getCell(2)));
+                double donGia = parseDoubleSafe(getCellString(row.getCell(3)));
+                double thanhTien = parseDoubleSafe(getCellString(row.getCell(4)));
 
-                if (maDH.isBlank() || maSP.isBlank() || soLuong <= 0) continue;
+                if (maSP.isBlank() || soLuong <= 0) continue;
+
+                if (maDH.isBlank()) maDH = dao.taoMaDonHangMoi(); // nếu excel bỏ trống thì tự sinh
 
                 if (donGia <= 0) donGia = dao.getGiaBanByMaSP(maSP);
                 if (thanhTien <= 0) thanhTien = soLuong * donGia;
@@ -230,6 +240,7 @@ public class ChiTietDonHangController implements ActionListener {
         JOptionPane.showMessageDialog(view, "Nhập Excel xong. Thêm mới: " + count + " dòng.");
         loadData(dao.getAll());
         view.resetForm();
+        view.setMaDonHang(dao.taoMaDonHangMoi());
     }
 
     private void xuatExcel() throws Exception {
@@ -244,18 +255,17 @@ public class ChiTietDonHangController implements ActionListener {
             Sheet sheet = wb.createSheet("ChiTietDonHang");
 
             Row header = sheet.createRow(0);
-            String[] cols = {"ID", "MaDonHang", "MaSP", "SoLuong", "DonGia", "ThanhTien"};
+            String[] cols = {"MaDonHang", "MaSP", "SoLuong", "DonGia", "ThanhTien"};
             for (int c = 0; c < cols.length; c++) header.createCell(c).setCellValue(cols[c]);
 
             int r = 1;
             for (ChiTietDonHang ct : list) {
                 Row row = sheet.createRow(r++);
-                row.createCell(0).setCellValue(ct.getId());
-                row.createCell(1).setCellValue(ct.getMaDonHang());
-                row.createCell(2).setCellValue(ct.getMaSP());
-                row.createCell(3).setCellValue(ct.getSoLuong());
-                row.createCell(4).setCellValue(ct.getDonGia());
-                row.createCell(5).setCellValue(ct.getThanhTien());
+                row.createCell(0).setCellValue(ct.getMaDonHang());
+                row.createCell(1).setCellValue(ct.getMaSP());
+                row.createCell(2).setCellValue(ct.getSoLuong());
+                row.createCell(3).setCellValue(ct.getDonGia());
+                row.createCell(4).setCellValue(ct.getThanhTien());
             }
 
             for (int c = 0; c < cols.length; c++) sheet.autoSizeColumn(c);
@@ -273,11 +283,9 @@ public class ChiTietDonHangController implements ActionListener {
         cell.setCellType(CellType.STRING);
         return cell.getStringCellValue().trim();
     }
-
     private int parseIntSafe(String s) {
         try { return Integer.parseInt(s.trim()); } catch (Exception e) { return 0; }
     }
-
     private double parseDoubleSafe(String s) {
         try { return Double.parseDouble(s.trim().replace(",", "")); } catch (Exception e) { return 0.0; }
     }

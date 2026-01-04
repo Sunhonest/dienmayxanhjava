@@ -21,7 +21,7 @@ public class ChiTietDonHangDAO {
 
     public List<ChiTietDonHang> getAll() {
         List<ChiTietDonHang> list = new ArrayList<>();
-        String sql = "SELECT ID, MaDonHang, MaSP, SoLuong, DonGia, ThanhTien FROM " + TABLE + " ORDER BY ID DESC";
+        String sql = "SELECT MaDonHang, MaSP, SoLuong, DonGia, ThanhTien FROM " + TABLE + " ORDER BY MaDonHang DESC";
 
         try (java.sql.Connection con = ConnectDB.getConnection();
              PreparedStatement ps = con.prepareStatement(sql);
@@ -29,7 +29,6 @@ public class ChiTietDonHangDAO {
 
             while (rs.next()) {
                 ChiTietDonHang ct = new ChiTietDonHang();
-                ct.setId(rs.getInt("ID"));
                 ct.setMaDonHang(rs.getString("MaDonHang"));
                 ct.setMaSP(rs.getString("MaSP"));
                 ct.setSoLuong(rs.getInt("SoLuong"));
@@ -62,16 +61,15 @@ public class ChiTietDonHangDAO {
     }
 
     public int update(ChiTietDonHang ct) {
-        String sql = "UPDATE " + TABLE + " SET MaDonHang=?, MaSP=?, SoLuong=?, DonGia=?, ThanhTien=? WHERE ID=?";
+        String sql = "UPDATE " + TABLE + " SET MaSP=?, SoLuong=?, DonGia=?, ThanhTien=? WHERE MaDonHang=?";
         try (java.sql.Connection con = ConnectDB.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
-            ps.setString(1, ct.getMaDonHang());
-            ps.setString(2, ct.getMaSP());
-            ps.setInt(3, ct.getSoLuong());
-            ps.setDouble(4, ct.getDonGia());
-            ps.setDouble(5, ct.getThanhTien());
-            ps.setInt(6, ct.getId());
+            ps.setString(1, ct.getMaSP());
+            ps.setInt(2, ct.getSoLuong());
+            ps.setDouble(3, ct.getDonGia());
+            ps.setDouble(4, ct.getThanhTien());
+            ps.setString(5, ct.getMaDonHang());
             return ps.executeUpdate();
 
         } catch (Exception e) {
@@ -80,12 +78,12 @@ public class ChiTietDonHangDAO {
         return 0;
     }
 
-    public int delete(int id) {
-        String sql = "DELETE FROM " + TABLE + " WHERE ID=?";
+    public int delete(String maDonHang) {
+        String sql = "DELETE FROM " + TABLE + " WHERE MaDonHang=?";
         try (java.sql.Connection con = ConnectDB.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
-            ps.setInt(1, id);
+            ps.setString(1, maDonHang);
             return ps.executeUpdate();
 
         } catch (Exception e) {
@@ -96,9 +94,8 @@ public class ChiTietDonHangDAO {
 
     public List<ChiTietDonHang> search(String keyword) {
         List<ChiTietDonHang> list = new ArrayList<>();
-        String sql = "SELECT ID, MaDonHang, MaSP, SoLuong, DonGia, ThanhTien FROM " + TABLE +
-                     " WHERE CAST(ID AS CHAR) LIKE ? OR MaDonHang LIKE ? OR MaSP LIKE ? " +
-                     " ORDER BY ID DESC";
+        String sql = "SELECT MaDonHang, MaSP, SoLuong, DonGia, ThanhTien FROM " + TABLE +
+                     " WHERE MaDonHang LIKE ? OR MaSP LIKE ? ORDER BY MaDonHang DESC";
 
         String k = "%" + (keyword == null ? "" : keyword.trim()) + "%";
         try (java.sql.Connection con = ConnectDB.getConnection();
@@ -106,12 +103,10 @@ public class ChiTietDonHangDAO {
 
             ps.setString(1, k);
             ps.setString(2, k);
-            ps.setString(3, k);
 
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     ChiTietDonHang ct = new ChiTietDonHang();
-                    ct.setId(rs.getInt("ID"));
                     ct.setMaDonHang(rs.getString("MaDonHang"));
                     ct.setMaSP(rs.getString("MaSP"));
                     ct.setSoLuong(rs.getInt("SoLuong"));
@@ -126,11 +121,7 @@ public class ChiTietDonHangDAO {
         return list;
     }
 
-    // ====== COMBOBOX DATA (KHÔNG TẠO DAO RIÊNG) ======
-    public List<String> getAllMaDonHang() {
-        return simpleList("SELECT MaDonHang FROM donhang ORDER BY MaDonHang");
-    }
-
+    // ====== COMBOBOX MaSP ======
     public List<String> getAllMaSP() {
         return simpleList("SELECT MaSP FROM sanpham ORDER BY MaSP");
     }
@@ -160,5 +151,23 @@ public class ChiTietDonHangDAO {
             e.printStackTrace();
         }
         return list;
+    }
+
+    // ====== TẠO MÃ ĐƠN HÀNG MỚI (DH + số) ======
+    public String taoMaDonHangMoi() {
+        String sql = "SELECT MAX(CAST(SUBSTRING(MaDonHang, 3) AS UNSIGNED)) " +
+                     "FROM " + TABLE + " WHERE MaDonHang LIKE 'DH%'";
+        int max = 0;
+        try (java.sql.Connection con = ConnectDB.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) max = rs.getInt(1);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        int next = max + 1;
+
+        // nếu bạn muốn luôn 4 số như DH0001 thì đổi %03d -> %04d
+        return "DH" + String.format("%03d", next);
     }
 }

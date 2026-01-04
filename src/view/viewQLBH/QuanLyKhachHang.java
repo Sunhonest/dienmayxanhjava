@@ -61,19 +61,17 @@ public class QuanLyKhachHang extends JPanel {
         top.add(txtTimKiem, BorderLayout.CENTER);
         top.add(btnTim, BorderLayout.EAST);
 
-        model = new DefaultTableModel(new Object[]{"MaKH", "Họ tên", "SDT", "Email", "Địa chỉ"}, 0) {
+        model = new DefaultTableModel(new Object[]{"Mã KH", "Họ tên", "SDT", "Email", "Địa chỉ"}, 0) {
             @Override public boolean isCellEditable(int r, int c) { return false; }
         };
 
         tblKhachHang = new JTable(model);
 
-        // STYLE TABLE
         tblKhachHang.setRowHeight(28);
         tblKhachHang.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         tblKhachHang.setSelectionBackground(new Color(187, 222, 251));
         tblKhachHang.setSelectionForeground(Color.BLACK);
 
-        // STYLE HEADER (xanh giống form bạn)
         JTableHeader header = tblKhachHang.getTableHeader();
         header.setBackground(new Color(33, 150, 243));
         header.setForeground(Color.WHITE);
@@ -142,7 +140,6 @@ public class QuanLyKhachHang extends JPanel {
         btnNhapExcel = new JButton("Nhập Excel");
         btnXuatExcel = new JButton("Xuất Excel");
 
-        // STYLE BUTTONS giống chuẩn bạn
         stylePrimaryGreen(btnThem);
         styleGray(btnSua);
         styleGray(btnXoa);

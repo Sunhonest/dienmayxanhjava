@@ -53,10 +53,14 @@ public class QuanLyDonHang extends JPanel {
     private JButton btnTim;
 
     // Fields
-    private JTextField txtMaDonHang;
+    private JTextField txtID;                // ID auto tăng (disable)
+    private JComboBox<String> cboMaDonHang;  // ✅ MaDonHang lấy từ CTDH
     private JComboBox<String> cboMaKH, cboMaNV, cboVoucherID;
     private JSpinner spNgayTao;
-    private JFormattedTextField txtTongTien, txtTienGiam;
+
+    // DB: ThanhTien, TienGiam, GiaThanhToan
+    private JFormattedTextField txtThanhTien, txtTienGiam, txtGiaThanhToan;
+
     private JComboBox<String> cboTrangThai;
 
     // Buttons
@@ -90,7 +94,6 @@ public class QuanLyDonHang extends JPanel {
     private JPanel createTablePanel() {
         JPanel panel = new JPanel(new BorderLayout(8, 8));
 
-        // ===== TOP SEARCH BAR =====
         JPanel top = new JPanel(new BorderLayout(8, 8));
         txtTimKiem = new JTextField();
         btnTim = new JButton("Tìm kiếm");
@@ -100,46 +103,35 @@ public class QuanLyDonHang extends JPanel {
         top.add(txtTimKiem, BorderLayout.CENTER);
         top.add(btnTim, BorderLayout.EAST);
 
-        // ===== TABLE MODEL =====
         model = new DefaultTableModel(
                 new Object[]{
-                        "Mã khách hàng", "Mã đơn hàng", "Ngày tạo",
-                        "Tổng tiền", "Tiền giảm", "Voucher ID",
-                        "Trạng thái", "Mã nhân viên"
+                        "ID", "Mã khách hàng", "Mã đơn hàng", "Ngày tạo",
+                        "Thành tiền", "Tiền giảm", "Giá thanh toán",
+                        "Voucher ID", "Trạng thái", "Mã nhân viên"
                 }, 0
         ) {
-            @Override
-            public boolean isCellEditable(int row, int col) {
-                return false;
-            }
-
-            @Override
-            public Class<?> getColumnClass(int columnIndex) {
-                if (columnIndex == 2) return Date.class; // Ngày tạo
+            @Override public boolean isCellEditable(int row, int col) { return false; }
+            @Override public Class<?> getColumnClass(int columnIndex) {
+                if (columnIndex == 3) return Date.class;
                 return Object.class;
             }
         };
 
         tblDonHang = new JTable(model);
 
-        // ===== STYLE TABLE =====
         tblDonHang.setRowHeight(28);
         tblDonHang.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         tblDonHang.setSelectionBackground(new Color(187, 222, 251));
         tblDonHang.setSelectionForeground(Color.BLACK);
 
-        // Render ngày cho đẹp
-        tblDonHang.getColumnModel().getColumn(2).setCellRenderer(new DefaultTableCellRenderer() {
+        tblDonHang.getColumnModel().getColumn(3).setCellRenderer(new DefaultTableCellRenderer() {
             private final java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-
-            @Override
-            protected void setValue(Object value) {
+            @Override protected void setValue(Object value) {
                 if (value instanceof Date) setText(sdf.format((Date) value));
                 else setText(value == null ? "" : value.toString());
             }
         });
 
-        // ===== STYLE HEADER =====
         JTableHeader header = tblDonHang.getTableHeader();
         header.setBackground(new Color(33, 150, 243));
         header.setForeground(Color.WHITE);
@@ -149,7 +141,7 @@ public class QuanLyDonHang extends JPanel {
         header.setDefaultRenderer(new DefaultTableCellRenderer() {
             @Override
             public Component getTableCellRendererComponent(JTable table, Object value,
-                    boolean isSelected, boolean hasFocus, int row, int column) {
+                                                          boolean isSelected, boolean hasFocus, int row, int column) {
                 JLabel label = new JLabel(value == null ? "" : value.toString());
                 label.setBackground(new Color(33, 150, 243));
                 label.setForeground(Color.WHITE);
@@ -182,35 +174,42 @@ public class QuanLyDonHang extends JPanel {
         gbc.insets = new Insets(8, 0, 8, 0);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        txtMaDonHang = new JTextField();
+        txtID = new JTextField();
+        txtID.setEnabled(false);
 
+        cboMaDonHang = new JComboBox<>(); // ✅ lấy từ CTDH (controller fill)
         cboMaKH = new JComboBox<>();
         cboMaNV = new JComboBox<>();
         cboVoucherID = new JComboBox<>();
-        cboVoucherID.addItem("0"); // mặc định
+        cboVoucherID.addItem("0");
 
         spNgayTao = new JSpinner(new SpinnerDateModel(new Date(), null, null, Calendar.MINUTE));
         spNgayTao.setEditor(new JSpinner.DateEditor(spNgayTao, "yyyy-MM-dd HH:mm:ss"));
 
         NumberFormat nf = new DecimalFormat("#,##0.00");
-        txtTongTien = new JFormattedTextField(nf);
+        txtThanhTien = new JFormattedTextField(nf);
         txtTienGiam = new JFormattedTextField(nf);
+        txtGiaThanhToan = new JFormattedTextField(nf);
 
-        txtTongTien.setValue(0.00);
+        txtThanhTien.setValue(0.00);
         txtTienGiam.setValue(0.00);
+        txtGiaThanhToan.setValue(0.00);
 
-        // tuỳ bạn: nếu tổng tiền do CTDH tính thì để false, còn cho nhập tay thì để true
-        // txtTongTien.setEditable(false);
+        // ✅ tự tính, không cho sửa
+        txtThanhTien.setEditable(false);
         txtTienGiam.setEditable(false);
+        txtGiaThanhToan.setEditable(false);
 
         cboTrangThai = new JComboBox<>(new String[]{"MOI_TAO", "DA_XAC_NHAN", "HUY"});
 
         int r = 0;
+        r = addRow(form, gbc, r, "ID:", txtID);
+        r = addRow(form, gbc, r, "Mã đơn hàng:", cboMaDonHang);
         r = addRow(form, gbc, r, "Mã KH:", cboMaKH);
-        r = addRow(form, gbc, r, "Mã đơn hàng:", txtMaDonHang);
         r = addRow(form, gbc, r, "Ngày tạo:", spNgayTao);
-        r = addRow(form, gbc, r, "Tổng tiền:", txtTongTien);
+        r = addRow(form, gbc, r, "Thành tiền:", txtThanhTien);
         r = addRow(form, gbc, r, "Tiền giảm:", txtTienGiam);
+        r = addRow(form, gbc, r, "Giá thanh toán:", txtGiaThanhToan);
         r = addRow(form, gbc, r, "VoucherID:", cboVoucherID);
         r = addRow(form, gbc, r, "Trạng thái:", cboTrangThai);
         r = addRow(form, gbc, r, "Mã NV:", cboMaNV);
@@ -220,7 +219,6 @@ public class QuanLyDonHang extends JPanel {
         sp.getVerticalScrollBar().setUnitIncrement(16);
         wrap.add(sp, BorderLayout.CENTER);
 
-        // ===== BUTTONS (3x2) =====
         JPanel btnPanel = new JPanel(new GridLayout(3, 2, 10, 10));
         btnPanel.setBorder(new EmptyBorder(10, 14, 14, 14));
 
@@ -260,14 +258,10 @@ public class QuanLyDonHang extends JPanel {
         JLabel lb = new JLabel(label);
         lb.setFont(new Font("Segoe UI", Font.BOLD, 13));
 
-        gbc.gridx = 0;
-        gbc.gridy = row;
-        gbc.weightx = 1;
+        gbc.gridx = 0; gbc.gridy = row; gbc.weightx = 1;
         form.add(lb, gbc);
 
-        gbc.gridx = 0;
-        gbc.gridy = row + 1;
-        gbc.weightx = 1;
+        gbc.gridx = 0; gbc.gridy = row + 1; gbc.weightx = 1;
         field.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         field.setPreferredSize(new Dimension(0, 30));
         form.add(field, gbc);
@@ -275,7 +269,7 @@ public class QuanLyDonHang extends JPanel {
         return row + 2;
     }
 
-    // ===== API cho Controller =====
+    // ================= API cho Controller =================
     public void addActionListener(ActionListener al) {
         btnThem.addActionListener(al);
         btnSua.addActionListener(al);
@@ -286,75 +280,89 @@ public class QuanLyDonHang extends JPanel {
         btnXuatExcel.addActionListener(al);
     }
 
-    public JTable getTable() {
-        return tblDonHang;
+    public JTable getTable() { return tblDonHang; }
+    public DefaultTableModel getModel() { return model; }
+    public String getKeyword() { return txtTimKiem.getText().trim(); }
+
+    public JComboBox<String> getCboMaDonHang() { return cboMaDonHang; }
+    public JComboBox<String> getCboMaKH() { return cboMaKH; }
+    public JComboBox<String> getCboMaNV() { return cboMaNV; }
+    public JComboBox<String> getCboVoucherID() { return cboVoucherID; }
+    public JComboBox<String> getCboTrangThai() { return cboTrangThai; }
+
+    public void setID(int id) { txtID.setText(id <= 0 ? "" : String.valueOf(id)); }
+
+    public void setThanhTien(double v) {
+        txtThanhTien.setValue(v);
+        capNhatGiaThanhToan();
     }
 
-    public DefaultTableModel getModel() {
-        return model;
+    public void setTienGiam(double v) {
+        txtTienGiam.setValue(v);
+        capNhatGiaThanhToan();
     }
 
-    public String getKeyword() {
-        return txtTimKiem.getText().trim();
+    public double getThanhTienValue() {
+        try { return Double.parseDouble(normalizeMoney(txtThanhTien.getText())); }
+        catch (Exception e) { return 0.0; }
     }
 
-    public JComboBox<String> getCboMaKH() {
-        return cboMaKH;
-    }
+    public void capNhatGiaThanhToan() {
+        double thanhTien = getThanhTienValue();
+        double tienGiam = 0.0;
+        try { tienGiam = Double.parseDouble(normalizeMoney(txtTienGiam.getText())); }
+        catch (Exception ignored) {}
 
-    public JComboBox<String> getCboMaNV() {
-        return cboMaNV;
-    }
-
-    public JComboBox<String> getCboVoucherID() {
-        return cboVoucherID;
+        double gtt = Math.max(0, thanhTien - tienGiam);
+        txtGiaThanhToan.setValue(gtt);
     }
 
     public String getMaDonHangDangChon() {
         int row = tblDonHang.getSelectedRow();
         if (row < 0) return null;
-        return valueAt(row, 1);
+        return valueAt(row, 2);
     }
 
     public void fillFormTuBang() {
         int row = tblDonHang.getSelectedRow();
         if (row < 0) return;
 
-        cboMaKH.setSelectedItem(valueAt(row, 0));
+        txtID.setText(valueAt(row, 0));
+        cboMaKH.setSelectedItem(valueAt(row, 1));
+        cboMaDonHang.setSelectedItem(valueAt(row, 2));
 
-        txtMaDonHang.setText(valueAt(row, 1));
-        txtMaDonHang.setEnabled(false);
-
-        Object oNgay = model.getValueAt(row, 2);
+        Object oNgay = model.getValueAt(row, 3);
         if (oNgay instanceof Date) spNgayTao.setValue((Date) oNgay);
         else spNgayTao.setValue(new Date());
 
-        txtTongTien.setText(valueAt(row, 3));
-        txtTienGiam.setText(valueAt(row, 4));
+        // ✅ dùng setValue để không bị lỗi format / mất giá trị
+        txtThanhTien.setValue(Double.parseDouble(normalizeMoney(valueAt(row, 4))));
+        txtTienGiam.setValue(Double.parseDouble(normalizeMoney(valueAt(row, 5))));
+        txtGiaThanhToan.setValue(Double.parseDouble(normalizeMoney(valueAt(row, 6))));
 
-        String v = valueAt(row, 5);
+        String v = valueAt(row, 7);
         cboVoucherID.setSelectedItem((v == null || v.isBlank()) ? "0" : v);
 
-        cboTrangThai.setSelectedItem(valueAt(row, 6));
-        cboMaNV.setSelectedItem(valueAt(row, 7));
+        cboTrangThai.setSelectedItem(valueAt(row, 8));
+        cboMaNV.setSelectedItem(valueAt(row, 9));
 
         btnSua.setEnabled(true);
         btnXoa.setEnabled(true);
     }
 
     public void resetForm() {
+        txtID.setText("");
+
+        if (cboMaDonHang.getItemCount() > 0) cboMaDonHang.setSelectedIndex(0);
         if (cboMaKH.getItemCount() > 0) cboMaKH.setSelectedIndex(0);
         if (cboMaNV.getItemCount() > 0) cboMaNV.setSelectedIndex(0);
 
         cboVoucherID.setSelectedItem("0");
-
-        txtMaDonHang.setText("");
-        txtMaDonHang.setEnabled(true);
-
         spNgayTao.setValue(new Date());
 
-        txtTongTien.setValue(0.00);
+        txtThanhTien.setValue(0.00);
         txtTienGiam.setValue(0.00);
+        txtGiaThanhToan.setValue(0.00);
 
         cboTrangThai.setSelectedIndex(0);
 
@@ -365,17 +373,23 @@ public class QuanLyDonHang extends JPanel {
     public QLDH getDonHangFromInput() {
         QLDH dh = new QLDH();
 
+        try { dh.setId(Integer.parseInt(txtID.getText().trim())); }
+        catch (Exception ignored) { dh.setId(0); }
+
+        dh.setMaDonHang(String.valueOf(cboMaDonHang.getSelectedItem()));
         dh.setMaKH(String.valueOf(cboMaKH.getSelectedItem()));
         dh.setMaNV(String.valueOf(cboMaNV.getSelectedItem()));
-
-        dh.setMaDonHang(txtMaDonHang.getText().trim());
         dh.setNgayTao((Date) spNgayTao.getValue());
 
-        float tong = Float.parseFloat(normalizeMoney(txtTongTien.getText()));
-        float giam = Float.parseFloat(normalizeMoney(txtTienGiam.getText()));
+        float thanhTien = 0f;
+        float tienGiam = 0f;
 
-        dh.setTongTien(tong);
-        dh.setTienGiam(giam);
+        try { thanhTien = Float.parseFloat(normalizeMoney(txtThanhTien.getText())); } catch (Exception ignored) {}
+        try { tienGiam = Float.parseFloat(normalizeMoney(txtTienGiam.getText())); } catch (Exception ignored) {}
+
+        dh.setThanhTien(thanhTien);
+        dh.setTienGiam(tienGiam);
+        dh.setGiaThanhToan(Math.max(0f, thanhTien - tienGiam));
 
         String v = String.valueOf(cboVoucherID.getSelectedItem());
         dh.setVoucherID((v == null || v.isBlank()) ? 0 : Integer.parseInt(v));
@@ -384,16 +398,16 @@ public class QuanLyDonHang extends JPanel {
         return dh;
     }
 
-    // ===== Helpers =====
+    // ================= Helpers =================
     private String valueAt(int row, int col) {
         Object o = model.getValueAt(row, col);
         return o == null ? "" : o.toString();
     }
 
     private String normalizeMoney(String s) {
-        if (s == null) return "0.00";
+        if (s == null) return "0";
         s = s.trim().replace(",", "");
-        if (s.isEmpty()) return "0.00";
+        if (s.isEmpty()) return "0";
         return s;
     }
 
@@ -402,7 +416,7 @@ public class QuanLyDonHang extends JPanel {
         btnXoa.setEnabled(false);
     }
 
-    // ===== Style methods =====
+    // ================= Style methods =================
     private void stylePrimaryGreen(JButton b) {
         b.setBackground(new Color(76, 175, 80));
         b.setForeground(Color.WHITE);

@@ -44,17 +44,15 @@ public class QuanLyChiTietDonHang extends JPanel {
     private JTable tblCTDH;
     private DefaultTableModel model;
 
-    // Search
     private JTextField txtTimKiem;
     private JButton btnTim;
 
     // Fields
-    private JTextField txtID;
-    private JComboBox<String> cboMaDonHang, cboMaSP;
+    private JTextField txtMaDonHang;      // auto sinh, disable
+    private JComboBox<String> cboMaSP;
     private JSpinner spSoLuong;
     private JFormattedTextField txtDonGia, txtThanhTien;
 
-    // Buttons
     private JButton btnThem, btnSua, btnXoa, btnLamMoi, btnNhapExcel, btnXuatExcel;
 
     public QuanLyChiTietDonHang() {
@@ -79,15 +77,12 @@ public class QuanLyChiTietDonHang extends JPanel {
         add(root, BorderLayout.CENTER);
 
         setButtonStateDefault();
-
-        // Tính thành tiền khi đổi số lượng
         spSoLuong.addChangeListener(e -> updateThanhTien());
     }
 
     private JPanel createTablePanel() {
         JPanel panel = new JPanel(new BorderLayout(8, 8));
 
-        // ===== TOP SEARCH BAR =====
         JPanel top = new JPanel(new BorderLayout(8, 8));
         txtTimKiem = new JTextField();
         btnTim = new JButton("Tìm kiếm");
@@ -98,20 +93,18 @@ public class QuanLyChiTietDonHang extends JPanel {
         top.add(btnTim, BorderLayout.EAST);
 
         model = new DefaultTableModel(
-                new Object[]{"ID", "Mã đơn hàng", "Mã SP", "Số lượng", "Đơn giá", "Thành tiền"}, 0
+                new Object[]{"Mã đơn hàng", "Mã SP", "Số lượng", "Đơn giá", "Thành tiền"}, 0
         ) {
             @Override public boolean isCellEditable(int r, int c) { return false; }
         };
 
         tblCTDH = new JTable(model);
 
-        // ===== STYLE TABLE =====
         tblCTDH.setRowHeight(28);
         tblCTDH.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         tblCTDH.setSelectionBackground(new Color(187, 222, 251));
         tblCTDH.setSelectionForeground(Color.BLACK);
 
-        // ===== STYLE HEADER (GIỐNG FORM BẠN) =====
         JTableHeader header = tblCTDH.getTableHeader();
         header.setBackground(new Color(33, 150, 243));
         header.setForeground(Color.WHITE);
@@ -154,12 +147,10 @@ public class QuanLyChiTietDonHang extends JPanel {
         gbc.insets = new Insets(8, 0, 8, 0);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        txtID = new JTextField();
-        txtID.setEnabled(false); // ID auto_increment -> ko cho sửa
+        txtMaDonHang = new JTextField();
+        txtMaDonHang.setEnabled(false); // tự sinh, không cho sửa
 
-        cboMaDonHang = new JComboBox<>();
         cboMaSP = new JComboBox<>();
-
         spSoLuong = new JSpinner(new SpinnerNumberModel(1, 1, 9999, 1));
 
         NumberFormat nf = new DecimalFormat("#,##0.00");
@@ -171,8 +162,7 @@ public class QuanLyChiTietDonHang extends JPanel {
         txtThanhTien.setValue(0.00);
 
         int r = 0;
-        r = addRow(form, gbc, r, "ID:", txtID);
-        r = addRow(form, gbc, r, "Mã đơn hàng:", cboMaDonHang);
+        r = addRow(form, gbc, r, "Mã đơn hàng:", txtMaDonHang);
         r = addRow(form, gbc, r, "Mã SP:", cboMaSP);
         r = addRow(form, gbc, r, "Số lượng:", spSoLuong);
         r = addRow(form, gbc, r, "Đơn giá:", txtDonGia);
@@ -180,7 +170,6 @@ public class QuanLyChiTietDonHang extends JPanel {
 
         wrap.add(form, BorderLayout.CENTER);
 
-        // ===== BUTTONS (3x2) =====
         JPanel btnPanel = new JPanel(new GridLayout(3, 2, 10, 10));
         btnPanel.setBorder(new EmptyBorder(10, 14, 14, 14));
 
@@ -191,7 +180,6 @@ public class QuanLyChiTietDonHang extends JPanel {
         btnNhapExcel = new JButton("Nhập Excel");
         btnXuatExcel = new JButton("Xuất Excel");
 
-        // style giống các form bạn
         stylePrimaryGreen(btnThem);
         stylePrimaryBlue(btnLamMoi);
         styleGray(btnSua);
@@ -199,7 +187,6 @@ public class QuanLyChiTietDonHang extends JPanel {
         stylePrimaryBlue(btnNhapExcel);
         stylePrimaryBlue(btnXuatExcel);
 
-        // ActionCommand
         btnThem.setActionCommand("Them");
         btnSua.setActionCommand("Sua");
         btnXoa.setActionCommand("Xoa");
@@ -233,7 +220,7 @@ public class QuanLyChiTietDonHang extends JPanel {
         return row + 2;
     }
 
-    // ====== API cho Controller ======
+    // ===== API cho Controller =====
     public void addActionListener(ActionListener al) {
         btnThem.addActionListener(al);
         btnSua.addActionListener(al);
@@ -243,56 +230,45 @@ public class QuanLyChiTietDonHang extends JPanel {
         btnNhapExcel.addActionListener(al);
         btnXuatExcel.addActionListener(al);
     }
-    public void setDonGia(double donGia) {
-        txtDonGia.setValue(donGia);
-        updateThanhTien(); // tự cập nhật thành tiền
-    }
-
-    public void refreshThanhTien() {
-        updateThanhTien();
-    }
-
 
     public JTable getTable() { return tblCTDH; }
     public DefaultTableModel getModel() { return model; }
-
     public String getKeyword() { return txtTimKiem.getText().trim(); }
-
-    public JComboBox<String> getCboMaDonHang() { return cboMaDonHang; }
     public JComboBox<String> getCboMaSP() { return cboMaSP; }
 
-    public Integer getIDDangChon() {
+    public void setMaDonHang(String ma) { txtMaDonHang.setText(ma == null ? "" : ma.trim()); }
+    public String getMaDonHangHienTai() { return txtMaDonHang.getText().trim(); }
+
+    public String getMaDonHangDangChon() {
         int row = tblCTDH.getSelectedRow();
         if (row < 0) return null;
-        try { return Integer.parseInt(valueAt(row, 0)); }
-        catch (Exception e) { return null; }
+        String v = valueAt(row, 0);
+        return v.isBlank() ? null : v;
     }
 
     public void fillFormTuBang() {
         int row = tblCTDH.getSelectedRow();
         if (row < 0) return;
 
-        txtID.setText(valueAt(row, 0));
-        cboMaDonHang.setSelectedItem(valueAt(row, 1));
-        cboMaSP.setSelectedItem(valueAt(row, 2));
+        txtMaDonHang.setText(valueAt(row, 0));
+        cboMaSP.setSelectedItem(valueAt(row, 1));
 
-        try { spSoLuong.setValue(Integer.parseInt(valueAt(row, 3))); }
+        try { spSoLuong.setValue(Integer.parseInt(valueAt(row, 2))); }
         catch (Exception e) { spSoLuong.setValue(1); }
 
-        txtDonGia.setText(valueAt(row, 4));
-        txtThanhTien.setText(valueAt(row, 5));
+        txtDonGia.setText(valueAt(row, 3));
+        txtThanhTien.setText(valueAt(row, 4));
 
         btnSua.setEnabled(true);
         btnXoa.setEnabled(true);
     }
 
     public void resetForm() {
-        txtID.setText("");
+        // MaDonHang sẽ do Controller set lại bằng dao.taoMaDonHangMoi()
+        spSoLuong.setValue(1);
 
-        if (cboMaDonHang.getItemCount() > 0) cboMaDonHang.setSelectedIndex(0);
         if (cboMaSP.getItemCount() > 0) cboMaSP.setSelectedIndex(0);
 
-        spSoLuong.setValue(1);
         txtDonGia.setValue(0.00);
         txtThanhTien.setValue(0.00);
 
@@ -303,13 +279,7 @@ public class QuanLyChiTietDonHang extends JPanel {
     public ChiTietDonHang getCTDHFromInput() {
         ChiTietDonHang ct = new ChiTietDonHang();
 
-        // ID (nếu có)
-        try {
-            String s = txtID.getText().trim();
-            if (!s.isEmpty()) ct.setId(Integer.parseInt(s));
-        } catch (Exception ignored) {}
-
-        ct.setMaDonHang(String.valueOf(cboMaDonHang.getSelectedItem()));
+        ct.setMaDonHang(getMaDonHangHienTai());
         ct.setMaSP(String.valueOf(cboMaSP.getSelectedItem()));
 
         int soLuong = 1;
@@ -319,13 +289,16 @@ public class QuanLyChiTietDonHang extends JPanel {
         double donGia = parseMoney(txtDonGia.getText());
         ct.setDonGia(donGia);
 
-        double thanhTien = soLuong * donGia;
-        ct.setThanhTien(thanhTien);
-
+        ct.setThanhTien(soLuong * donGia);
         return ct;
     }
 
-    // ===== Helpers =====
+    public void setDonGia(double donGia) {
+        txtDonGia.setValue(donGia);
+        updateThanhTien();
+    }
+    public void refreshThanhTien() { updateThanhTien(); }
+
     public void updateThanhTien() {
         int soLuong = 1;
         try { soLuong = (int) spSoLuong.getValue(); } catch (Exception ignored) {}
@@ -351,7 +324,6 @@ public class QuanLyChiTietDonHang extends JPanel {
         btnXoa.setEnabled(false);
     }
 
-    // ===== Style methods (để bạn khỏi bị lỗi "không tồn tại method") =====
     private void stylePrimaryGreen(JButton b) {
         b.setBackground(new Color(76, 175, 80));
         b.setForeground(Color.WHITE);
@@ -359,7 +331,6 @@ public class QuanLyChiTietDonHang extends JPanel {
         b.setFocusPainted(false);
         b.setBorderPainted(false);
     }
-
     private void stylePrimaryBlue(JButton b) {
         b.setBackground(new Color(33, 150, 243));
         b.setForeground(Color.WHITE);
@@ -367,7 +338,6 @@ public class QuanLyChiTietDonHang extends JPanel {
         b.setFocusPainted(false);
         b.setBorderPainted(false);
     }
-
     private void styleGray(JButton b) {
         b.setBackground(new Color(200, 200, 200));
         b.setForeground(Color.BLACK);

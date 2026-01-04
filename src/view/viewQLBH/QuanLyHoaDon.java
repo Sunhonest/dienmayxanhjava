@@ -54,8 +54,8 @@ public class QuanLyHoaDon extends JPanel {
     private JButton btnTim;
 
     // Fields
-    private JTextField txtMaHoaDon, txtMaKH, txtMaNVLap;
-    private JComboBox<String> cboMaDonHang;
+    private JTextField txtMaHoaDon;
+    private JComboBox<String> cboMaDonHang, cboMaKH, cboMaNVLap;
     private JSpinner spNgayLap;
     private JFormattedTextField txtTongTienHang, txtTienGiam, txtTongThanhToan;
     private JComboBox<String> cboPhuongThucTT, cboTrangThai;
@@ -181,13 +181,13 @@ public class QuanLyHoaDon extends JPanel {
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
         txtMaHoaDon = new JTextField();
+        txtMaHoaDon.setEditable(false);
+        cboMaDonHang = new JComboBox<>();
+        cboMaKH = new JComboBox<>();
+        cboMaNVLap = new JComboBox<>();
+        cboMaKH.setEnabled(false);
+        cboMaNVLap.setEnabled(false);
 
-        cboMaDonHang = new JComboBox<>();   // load từ controller
-        txtMaKH = new JTextField();
-        txtMaNVLap = new JTextField();
-
-        txtMaKH.setEditable(false);
-        txtMaNVLap.setEditable(false);
 
         spNgayLap = new JSpinner(new SpinnerDateModel(new Date(), null, null, Calendar.MINUTE));
         spNgayLap.setEditor(new JSpinner.DateEditor(spNgayLap, "yyyy-MM-dd HH:mm:ss"));
@@ -211,14 +211,15 @@ public class QuanLyHoaDon extends JPanel {
         int r = 0;
         r = addRow(form, gbc, r, "Mã hóa đơn:", txtMaHoaDon);
         r = addRow(form, gbc, r, "Mã đơn hàng:", cboMaDonHang);
-        r = addRow(form, gbc, r, "Mã KH:", txtMaKH);
+        r = addRow(form, gbc, r, "Mã KH:", cboMaKH);
         r = addRow(form, gbc, r, "Ngày lập:", spNgayLap);
         r = addRow(form, gbc, r, "Tổng tiền hàng:", txtTongTienHang);
         r = addRow(form, gbc, r, "Tiền giảm:", txtTienGiam);
         r = addRow(form, gbc, r, "Tổng thanh toán:", txtTongThanhToan);
         r = addRow(form, gbc, r, "Phương thức TT:", cboPhuongThucTT);
         r = addRow(form, gbc, r, "Trạng thái:", cboTrangThai);
-        r = addRow(form, gbc, r, "Mã NV lập:", txtMaNVLap);
+        r = addRow(form, gbc, r, "Mã NV lập:", cboMaNVLap);
+
 
         JScrollPane sp = new JScrollPane(form);
         sp.setBorder(null);
@@ -307,7 +308,7 @@ public class QuanLyHoaDon extends JPanel {
         txtMaHoaDon.setEnabled(false);
 
         cboMaDonHang.setSelectedItem(valueAt(row, 1));
-        txtMaKH.setText(valueAt(row, 2));
+        cboMaKH.setSelectedItem(valueAt(row, 2));
 
         Object oNgay = model.getValueAt(row, 3);
         if (oNgay instanceof Date) spNgayLap.setValue((Date) oNgay);
@@ -319,7 +320,7 @@ public class QuanLyHoaDon extends JPanel {
 
         cboPhuongThucTT.setSelectedItem(valueAt(row, 7));
         cboTrangThai.setSelectedItem(valueAt(row, 8));
-        txtMaNVLap.setText(valueAt(row, 9));
+        cboMaNVLap.setSelectedItem(valueAt(row, 9));
 
         btnSua.setEnabled(true);
         btnXoa.setEnabled(true);
@@ -330,9 +331,9 @@ public class QuanLyHoaDon extends JPanel {
         txtMaHoaDon.setEnabled(true);
 
         if (cboMaDonHang.getItemCount() > 0) cboMaDonHang.setSelectedIndex(0);
+        if (cboMaKH.getItemCount() > 0) cboMaKH.setSelectedIndex(0);
+        if (cboMaNVLap.getItemCount() > 0) cboMaNVLap.setSelectedIndex(0);
 
-        txtMaKH.setText("");
-        txtMaNVLap.setText("");
 
         spNgayLap.setValue(new Date());
 
@@ -352,7 +353,7 @@ public class QuanLyHoaDon extends JPanel {
 
         hd.setMaHoaDon(txtMaHoaDon.getText().trim());
         hd.setMaDonHang(String.valueOf(cboMaDonHang.getSelectedItem()));
-        hd.setMaKH(txtMaKH.getText().trim());
+        hd.setMaKH(String.valueOf(cboMaKH.getSelectedItem()));
         hd.setNgayLap((Date) spNgayLap.getValue());
 
         float tongHang = Float.parseFloat(normalizeMoney(txtTongTienHang.getText()));
@@ -366,15 +367,18 @@ public class QuanLyHoaDon extends JPanel {
 
         hd.setPhuongThucTT(String.valueOf(cboPhuongThucTT.getSelectedItem()));
         hd.setTrangThai(String.valueOf(cboTrangThai.getSelectedItem()));
-        hd.setMaNV_Lap(txtMaNVLap.getText().trim());
+        hd.setMaNV_Lap(String.valueOf(cboMaNVLap.getSelectedItem()));
 
         return hd;
     }
 
     // Controller gọi khi đổi MaDonHang để đổ MaKH + tiền
     public void setDonHangInfoToForm(String maKH, float tongTienHang, float tienGiam, String maNVLap) {
-        txtMaKH.setText(maKH == null ? "" : maKH);
-        txtMaNVLap.setText(maNVLap == null ? "" : maNVLap);
+        if (maKH == null) maKH = "";
+        if (maNVLap == null) maNVLap = "";
+
+        cboMaKH.setSelectedItem(maKH);
+        cboMaNVLap.setSelectedItem(maNVLap);
 
         txtTongTienHang.setValue((double) tongTienHang);
         txtTienGiam.setValue((double) tienGiam);
@@ -383,6 +387,7 @@ public class QuanLyHoaDon extends JPanel {
         if (thanhToan < 0) thanhToan = 0;
         txtTongThanhToan.setValue((double) thanhToan);
     }
+
 
     // ===================== Helpers =====================
     private String valueAt(int row, int col) {
@@ -426,4 +431,12 @@ public class QuanLyHoaDon extends JPanel {
         b.setFocusPainted(false);
         b.setBorderPainted(false);
     }
+    public JComboBox<String> getCboMaKH() { return cboMaKH; }
+    public JComboBox<String> getCboMaNVLap() { return cboMaNVLap; }
+    
+    public void setMaHoaDon(String ma) {
+        txtMaHoaDon.setText(ma);
+    }
+
+
 }

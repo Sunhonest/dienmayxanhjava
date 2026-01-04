@@ -19,42 +19,73 @@ import model.ConnectDB;
  * @author Admin
  */
 public class DonHangDAO {
-    // Đổi tên bảng đúng với DB của bạn (vd: donhang / hoadon)
     private static final String TABLE = "donhang";
 
     public List<QLDH> getAll() {
         List<QLDH> list = new ArrayList<>();
-        String sql = "SELECT MaKH, MaDonHang, NgayTao, TongTien, TienGiam, VoucherID, TrangThai, MaNV FROM " + TABLE;
+        String sql = "SELECT ID, MaDonHang, MaKH, NgayTao, ThanhTien, TienGiam, GiaThanhToan, VoucherID, TrangThai, MaNV "
+                   + "FROM " + TABLE + " ORDER BY NgayTao DESC";
 
         try (Connection con = ConnectDB.getConnection();
              PreparedStatement ps = con.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
 
-            while (rs.next()) {
-                QLDH dh = new QLDH();
-                dh.setMaKH(rs.getString("MaKH"));
-                dh.setMaDonHang(rs.getString("MaDonHang"));
+            while (rs.next()) list.add(map(rs));
 
-                Timestamp ts = rs.getTimestamp("NgayTao");
-                dh.setNgayTao(ts); // nếu domain bạn để Date/String thì bạn tự đổi cho khớp
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
 
-                dh.setTongTien(rs.getFloat("TongTien"));
-                dh.setTienGiam(rs.getFloat("TienGiam"));
+    public List<QLDH> search(String keyword) {
+        List<QLDH> list = new ArrayList<>();
+        String k = "%" + (keyword == null ? "" : keyword.trim()) + "%";
 
-                int voucher = rs.getInt("VoucherID");
-                if (rs.wasNull()) voucher = 0;
-                dh.setVoucherID(voucher);
+        String sql = "SELECT ID, MaDonHang, MaKH, NgayTao, ThanhTien, TienGiam, GiaThanhToan, VoucherID, TrangThai, MaNV "
+                   + "FROM " + TABLE + " "
+                   + "WHERE MaDonHang LIKE ? OR MaKH LIKE ? OR MaNV LIKE ? OR TrangThai LIKE ? "
+                   + "   OR CAST(VoucherID AS CHAR) LIKE ? "
+                   + "ORDER BY NgayTao DESC";
 
-                dh.setTrangThai(rs.getString("TrangThai"));
-                dh.setMaNV(rs.getString("MaNV"));
+        try (Connection con = ConnectDB.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
 
-                list.add(dh);
+            for (int i = 1; i <= 5; i++) ps.setString(i, k);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) list.add(map(rs));
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         return list;
+    }
+
+    // ✅ MaDonHang lấy từ chi tiết đơn hàng
+    public List<String> getAllMaDonHangFromCTDH() {
+        return simpleList("SELECT DISTINCT MaDonHang FROM chitiet_donhang ORDER BY MaDonHang");
+    }
+
+    // ✅ Tính Thành tiền từ CTDH theo MaDonHang (ưu tiên cột ThanhTien nếu có)
+    public float getThanhTienFromCTDH(String maDonHang) {
+        String sql =
+            "SELECT " +
+            "  COALESCE(SUM(ThanhTien), SUM(SoLuong * DonGia), 0) AS Tong " +
+            "FROM chitiet_donhang " +
+            "WHERE MaDonHang = ?";
+
+        try (Connection con = ConnectDB.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, maDonHang);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getFloat("Tong");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0f;
     }
 
     public boolean checkTrungMa(String maDonHang) {
@@ -74,37 +105,31 @@ public class DonHangDAO {
     }
 
     public int insert(QLDH dh) {
-        String sql = "INSERT INTO " + TABLE +
-                " (MaKH, MaDonHang, NgayTao, TongTien, TienGiam, VoucherID, TrangThai, MaNV) " +
-                " VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        // ID auto tăng -> không insert ID
+        String sql = "INSERT INTO " + TABLE
+                + " (MaDonHang, MaKH, NgayTao, ThanhTien, TienGiam, GiaThanhToan, VoucherID, TrangThai, MaNV) "
+                + " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection con = ConnectDB.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
-            ps.setString(1, dh.getMaKH());
-            ps.setString(2, dh.getMaDonHang());
+            ps.setString(1, dh.getMaDonHang());
+            ps.setString(2, dh.getMaKH());
 
-            // NgayTao
-            // Nếu domain bạn đang là Timestamp/Date thì dùng 1 trong các dòng dưới
-            if (dh.getNgayTao() == null) {
-                ps.setTimestamp(3, new Timestamp(System.currentTimeMillis()));
-            } else if (dh.getNgayTao() instanceof Timestamp) {
-                ps.setTimestamp(3, (Timestamp) dh.getNgayTao());
-            } else if (dh.getNgayTao() instanceof java.util.Date) {
-                ps.setTimestamp(3, new Timestamp(((java.util.Date) dh.getNgayTao()).getTime()));
-            } else {
-                // fallback
-                ps.setTimestamp(3, new Timestamp(System.currentTimeMillis()));
-            }
-            ps.setFloat(4,dh.getTongTien());
-            ps.setFloat(5,dh.getTienGiam());
+            if (dh.getNgayTao() == null) ps.setTimestamp(3, new Timestamp(System.currentTimeMillis()));
+            else ps.setTimestamp(3, new Timestamp(dh.getNgayTao().getTime()));
 
-            // VoucherID: nếu 0 thì set NULL (tuỳ bạn muốn)
-            if (dh.getVoucherID() <= 0) ps.setNull(6, Types.INTEGER);
-            else ps.setInt(6, dh.getVoucherID());
+            ps.setFloat(4, dh.getThanhTien());
+            ps.setFloat(5, dh.getTienGiam());
+            ps.setFloat(6, dh.getGiaThanhToan());
 
-            ps.setString(7, dh.getTrangThai());
-            ps.setString(8, dh.getMaNV());
+            if (dh.getVoucherID() <= 0) ps.setNull(7, Types.INTEGER);
+            else ps.setInt(7, dh.getVoucherID());
+
+            ps.setString(8, dh.getTrangThai());
+
+            if (dh.getMaNV() == null || dh.getMaNV().isBlank()) ps.setNull(9, Types.VARCHAR);
+            else ps.setString(9, dh.getMaNV());
 
             return ps.executeUpdate();
 
@@ -115,36 +140,31 @@ public class DonHangDAO {
     }
 
     public int update(QLDH dh) {
-        String sql = "UPDATE " + TABLE +
-                " SET MaKH=?, NgayTao=?, TongTien=?, TienGiam=?, VoucherID=?, TrangThai=?, MaNV=? " +
-                " WHERE MaDonHang=?";
+        String sql = "UPDATE " + TABLE
+                + " SET MaKH=?, NgayTao=?, ThanhTien=?, TienGiam=?, GiaThanhToan=?, VoucherID=?, TrangThai=?, MaNV=? "
+                + " WHERE MaDonHang=?";
 
         try (Connection con = ConnectDB.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setString(1, dh.getMaKH());
 
-            // NgayTao
-            if (dh.getNgayTao() == null) {
-                ps.setTimestamp(2, new Timestamp(System.currentTimeMillis()));
-            } else if (dh.getNgayTao() instanceof Timestamp) {
-                ps.setTimestamp(2, (Timestamp) dh.getNgayTao());
-            } else if (dh.getNgayTao() instanceof java.util.Date) {
-                ps.setTimestamp(2, new Timestamp(((java.util.Date) dh.getNgayTao()).getTime()));
-            } else {
-                ps.setTimestamp(2, new Timestamp(System.currentTimeMillis()));
-            }
+            if (dh.getNgayTao() == null) ps.setTimestamp(2, new Timestamp(System.currentTimeMillis()));
+            else ps.setTimestamp(2, new Timestamp(dh.getNgayTao().getTime()));
 
-            ps.setFloat(3, dh.getTongTien());
+            ps.setFloat(3, dh.getThanhTien());
             ps.setFloat(4, dh.getTienGiam());
+            ps.setFloat(5, dh.getGiaThanhToan());
 
-            if (dh.getVoucherID() <= 0) ps.setNull(5, Types.INTEGER);
-            else ps.setInt(5, dh.getVoucherID());
+            if (dh.getVoucherID() <= 0) ps.setNull(6, Types.INTEGER);
+            else ps.setInt(6, dh.getVoucherID());
 
-            ps.setString(6, dh.getTrangThai());
-            ps.setString(7, dh.getMaNV());
+            ps.setString(7, dh.getTrangThai());
 
-            ps.setString(8, dh.getMaDonHang());
+            if (dh.getMaNV() == null || dh.getMaNV().isBlank()) ps.setNull(8, Types.VARCHAR);
+            else ps.setString(8, dh.getMaNV());
+
+            ps.setString(9, dh.getMaDonHang());
 
             return ps.executeUpdate();
 
@@ -156,7 +176,6 @@ public class DonHangDAO {
 
     public int delete(String maDonHang) {
         String sql = "DELETE FROM " + TABLE + " WHERE MaDonHang = ?";
-
         try (Connection con = ConnectDB.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
@@ -168,7 +187,8 @@ public class DonHangDAO {
         }
         return 0;
     }
-    public double tinhTienGiamTheoVoucher(int voucherId, double tongTien) {
+
+    public double tinhTienGiamTheoVoucher(int voucherId, double thanhTien) {
         String sql = """
             SELECT VoucherID, LoaiGiam, GiaTriGiam, GiamToiDa, DonHangToiThieu,
                    NgayBatDau, NgayKetThuc, SoLuong, TrangThai
@@ -197,20 +217,15 @@ public class DonHangDAO {
             if (batDau != null && now.before(batDau)) return 0.0;
             if (ketThuc != null && now.after(ketThuc)) return 0.0;
 
-            if (tongTien < donToiThieu) return 0.0;
+            if (thanhTien < donToiThieu) return 0.0;
 
             String loaiGiam = rs.getString("LoaiGiam");
-            double tienGiam;
-
-            if ("PHAN_TRAM".equalsIgnoreCase(loaiGiam)) {
-                // GiaTriGiam = % (ví dụ 10 = 10%)
-                tienGiam = tongTien * giaTriGiam / 100.0;
-            } else { // TIEN_MAT
-                tienGiam = giaTriGiam;
-            }
+            double tienGiam = "PHAN_TRAM".equalsIgnoreCase(loaiGiam)
+                    ? thanhTien * giaTriGiam / 100.0
+                    : giaTriGiam;
 
             if (giamToiDa > 0) tienGiam = Math.min(tienGiam, giamToiDa);
-            if (tienGiam > tongTien) tienGiam = tongTien;
+            if (tienGiam > thanhTien) tienGiam = thanhTien;
             if (tienGiam < 0) tienGiam = 0;
 
             return tienGiam;
@@ -230,25 +245,41 @@ public class DonHangDAO {
     }
 
     public List<String> getAllVoucherIDActive() {
-        // Chỉ lấy voucher đang kích hoạt
         return simpleList("SELECT VoucherID FROM voucher WHERE TrangThai='KICH_HOAT' ORDER BY VoucherID");
     }
 
-    // Helper dùng chung
     private List<String> simpleList(String sql) {
         List<String> list = new ArrayList<>();
         try (Connection con = ConnectDB.getConnection();
              PreparedStatement ps = con.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
 
-            while (rs.next()) {
-                list.add(rs.getString(1));
-            }
+            while (rs.next()) list.add(rs.getString(1));
         } catch (Exception e) {
             e.printStackTrace();
         }
         return list;
     }
 
-    
-}
+    private QLDH map(ResultSet rs) throws Exception {
+        QLDH dh = new QLDH();
+        dh.setId(rs.getInt("ID"));
+        dh.setMaDonHang(rs.getString("MaDonHang"));
+        dh.setMaKH(rs.getString("MaKH"));
+
+        Timestamp ts = rs.getTimestamp("NgayTao");
+        dh.setNgayTao(ts == null ? null : new java.util.Date(ts.getTime()));
+
+        dh.setThanhTien(rs.getFloat("ThanhTien"));
+        dh.setTienGiam(rs.getFloat("TienGiam"));
+        dh.setGiaThanhToan(rs.getFloat("GiaThanhToan"));
+
+        int voucher = rs.getInt("VoucherID");
+        if (rs.wasNull()) voucher = 0;
+        dh.setVoucherID(voucher);
+
+        dh.setTrangThai(rs.getString("TrangThai"));
+        dh.setMaNV(rs.getString("MaNV"));
+        return dh;
+    }
+}   

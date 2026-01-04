@@ -9,7 +9,6 @@ package domain.QLBH;
  * @author Admin
  */
 public class ChiTietDonHang {
-    private int id;
     private String maDonHang;
     private String maSP;
     private int soLuong;
@@ -17,7 +16,6 @@ public class ChiTietDonHang {
     private double thanhTien;
 
     public ChiTietDonHang(int id, String maDonHang, String maSP, int soLuong, double donGia, double thanhTien) {
-        this.id = id;
         this.maDonHang = maDonHang;
         this.maSP = maSP;
         this.soLuong = soLuong;
@@ -26,14 +24,6 @@ public class ChiTietDonHang {
     }
 
     public ChiTietDonHang() {
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public String getMaDonHang() {
