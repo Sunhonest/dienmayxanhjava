@@ -19,7 +19,7 @@ public class SanPhamDAO {
     public List<SanPham> getAll() {
         List<SanPham> list = new ArrayList<>();
         // Chỉ lấy sản phẩm đang kinh doanh để hiển thị
-        String sql = "SELECT * FROM sanpham WHERE TrangThaiKinhDoanh = 'DANG_BAN'"; 
+        String sql = "SELECT * FROM sanpham "; //WHERE TrangThaiKinhDoanh = 'DANG_BAN'
         try (Connection cons = ConnectDB.getConnection();
              PreparedStatement ps = cons.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {

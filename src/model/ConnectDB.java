@@ -11,7 +11,7 @@ public class ConnectDB {
     private static final String PORT = "3306";
     private static final String DBNAME = "dbdienmayxanh"; // Tên database bạn vừa tạo
     private static final String USERNAME = "root";        // Mặc định XAMPP là root
-    private static final String PASSWORD = "123456";            // Mặc định XAMPP không có pass
+    private static final String PASSWORD = "";            // Mặc định XAMPP không có pass
 
     // Chuỗi kết nối chuẩn (đã bao gồm xử lý Tiếng Việt)
     private static final String URL = "jdbc:mysql://" + HOST + ":" + PORT + "/" + DBNAME 
